@@ -6,7 +6,9 @@ import '../models/tank_model.dart';
 import '../services/firebase_service.dart';
 
 class Dashboard extends StatefulWidget {
-  const Dashboard({super.key});
+  const Dashboard({super.key, required this.firebaseReady});
+
+  final bool firebaseReady;
 
   @override
   State<Dashboard> createState() => _DashboardState();
@@ -79,6 +81,14 @@ class _DashboardState extends State<Dashboard> {
                   child: ListView(
                     padding: const EdgeInsets.all(20),
                     children: [
+                      if (!widget.firebaseReady) ...[
+                        const _AlertTile(
+                          title: 'Firebase Not Configured',
+                          subtitle: 'Running in local preview mode. Data writes and live sync are disabled.',
+                          color: Colors.orange,
+                        ),
+                        const SizedBox(height: 16),
+                      ],
                       const Text('Water Level', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
                       const SizedBox(height: 10),
                       LinearProgressIndicator(

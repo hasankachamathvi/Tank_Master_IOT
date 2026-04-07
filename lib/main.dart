@@ -5,16 +5,38 @@ import 'screens/dashboard.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  bool firebaseReady = false;
+
   try {
     await Firebase.initializeApp();
+    firebaseReady = true;
   } catch (error) {
     debugPrint('Firebase init failed: $error');
   }
-  runApp(const MyApp());
+
+  ErrorWidget.builder = (FlutterErrorDetails details) {
+    return Material(
+      color: Colors.white,
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Text(
+            'Something went wrong while rendering the app.',
+            style: const TextStyle(fontSize: 16),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ),
+    );
+  };
+
+  runApp(MyApp(firebaseReady: firebaseReady));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({super.key, required this.firebaseReady});
+
+  final bool firebaseReady;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +47,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
-      home: const Dashboard(),
+      home: Dashboard(firebaseReady: firebaseReady),
     );
   }
 }
