@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
@@ -83,11 +85,12 @@ class AppRoot extends StatefulWidget {
 
 class _AppRootState extends State<AppRoot> {
   bool _showSplash = true;
+  Timer? _splashTimer;
 
   @override
   void initState() {
     super.initState();
-    Future<void>.delayed(const Duration(seconds: 2), () {
+    _splashTimer = Timer(const Duration(seconds: 2), () {
       if (!mounted) {
         return;
       }
@@ -96,6 +99,12 @@ class _AppRootState extends State<AppRoot> {
         _showSplash = false;
       });
     });
+  }
+
+  @override
+  void dispose() {
+    _splashTimer?.cancel();
+    super.dispose();
   }
 
   @override
