@@ -3,10 +3,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:tank_master/main.dart';
 
 void main() {
-  testWidgets('Splash screen renders title', (WidgetTester tester) async {
+  testWidgets('Splash screen transitions to login', (WidgetTester tester) async {
     await tester.pumpWidget(const MyApp());
-    await tester.pump();
-
     expect(find.text('Tank Master'), findsOneWidget);
+
+    await tester.pump(const Duration(seconds: 3));
+
+    expect(find.text('Tank Master Login'), findsOneWidget);
   });
 }
