@@ -48,9 +48,13 @@ class _AppShellState extends State<AppShell> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Tank Master - ${titles[_index]}'),
+        backgroundColor: const Color(0xFF1565C0),
+        foregroundColor: Colors.white,
       ),
       body: pages[_index],
       bottomNavigationBar: NavigationBar(
+        backgroundColor: const Color(0xFFDCEEFD),
+        indicatorColor: const Color(0xFF90CAF9),
         selectedIndex: _index,
         onDestinationSelected: (value) {
           setState(() {

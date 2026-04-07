@@ -60,65 +60,73 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Create Account')),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 420),
-            child: Card(
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      TextFormField(
-                        controller: _nameController,
-                        decoration: const InputDecoration(labelText: 'Full Name'),
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Name is required';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 12),
-                      TextFormField(
-                        controller: _emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        decoration: const InputDecoration(labelText: 'Email'),
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty || !value.contains('@')) {
-                            return 'Enter a valid email';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 12),
-                      TextFormField(
-                        controller: _passwordController,
-                        obscureText: true,
-                        decoration: const InputDecoration(labelText: 'Password'),
-                        validator: (value) {
-                          if (value == null || value.length < 6) {
-                            return 'Password must be at least 6 characters';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      if (_error != null)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: Text(_error!, style: const TextStyle(color: Colors.red)),
+      appBar: AppBar(
+        title: const Text('Create Account'),
+        backgroundColor: const Color(0xFF1565C0),
+        foregroundColor: Colors.white,
+      ),
+      body: Container(
+        width: double.infinity,
+        color: const Color(0xFFEAF3FF),
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 420),
+              child: Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        TextFormField(
+                          controller: _nameController,
+                          decoration: const InputDecoration(labelText: 'Full Name'),
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return 'Name is required';
+                            }
+                            return null;
+                          },
                         ),
-                      FilledButton(
-                        onPressed: _submitting ? null : _submit,
-                        child: Text(_submitting ? 'Creating...' : 'Register'),
-                      ),
-                    ],
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: _emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          decoration: const InputDecoration(labelText: 'Email'),
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty || !value.contains('@')) {
+                              return 'Enter a valid email';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: _passwordController,
+                          obscureText: true,
+                          decoration: const InputDecoration(labelText: 'Password'),
+                          validator: (value) {
+                            if (value == null || value.length < 6) {
+                              return 'Password must be at least 6 characters';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        if (_error != null)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: Text(_error!, style: const TextStyle(color: Colors.red)),
+                          ),
+                        FilledButton(
+                          onPressed: _submitting ? null : _submit,
+                          child: Text(_submitting ? 'Creating...' : 'Register'),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

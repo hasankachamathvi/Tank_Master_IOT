@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'models/app_user.dart';
 import 'screens/app_shell.dart';
 import 'screens/login_screen.dart';
+import 'screens/splash_screen.dart';
 import 'services/auth_service.dart';
 
 Future<void> main() async {
@@ -47,7 +48,23 @@ class MyApp extends StatelessWidget {
       title: 'Water Tank App',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF1565C0)),
+        scaffoldBackgroundColor: const Color(0xFFEAF3FF),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFF1565C0),
+          foregroundColor: Colors.white,
+          centerTitle: true,
+        ),
+        cardTheme: const CardThemeData(
+          elevation: 2,
+          margin: EdgeInsets.zero,
+        ),
+        filledButtonTheme: FilledButtonThemeData(
+          style: FilledButton.styleFrom(
+            backgroundColor: const Color(0xFF1565C0),
+            foregroundColor: Colors.white,
+          ),
+        ),
         useMaterial3: true,
       ),
       home: AppRoot(firebaseReady: firebaseReady),
@@ -55,13 +72,38 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class AppRoot extends StatelessWidget {
+class AppRoot extends StatefulWidget {
   const AppRoot({super.key, required this.firebaseReady});
 
   final bool firebaseReady;
 
   @override
+  State<AppRoot> createState() => _AppRootState();
+}
+
+class _AppRootState extends State<AppRoot> {
+  bool _showSplash = true;
+
+  @override
+  void initState() {
+    super.initState();
+    Future<void>.delayed(const Duration(seconds: 2), () {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _showSplash = false;
+      });
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (_showSplash) {
+      return const SplashScreen();
+    }
+
     return StreamBuilder<AppUser?>(
       stream: AuthService.instance.authStateChanges(),
       builder: (context, snapshot) {
@@ -71,7 +113,7 @@ class AppRoot extends StatelessWidget {
           return const LoginScreen();
         }
 
-        return AppShell(user: user, firebaseReady: firebaseReady);
+        return AppShell(user: user, firebaseReady: widget.firebaseReady);
       },
     );
   }
