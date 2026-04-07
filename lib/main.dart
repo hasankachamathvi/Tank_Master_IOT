@@ -1,7 +1,10 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
-import 'screens/dashboard.dart';
+import 'models/app_user.dart';
+import 'screens/app_shell.dart';
+import 'screens/login_screen.dart';
+import 'services/auth_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,7 +37,7 @@ Future<void> main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key, required this.firebaseReady});
+  const MyApp({super.key, this.firebaseReady = false});
 
   final bool firebaseReady;
 
@@ -47,7 +50,29 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
-      home: Dashboard(firebaseReady: firebaseReady),
+      home: AppRoot(firebaseReady: firebaseReady),
+    );
+  }
+}
+
+class AppRoot extends StatelessWidget {
+  const AppRoot({super.key, required this.firebaseReady});
+
+  final bool firebaseReady;
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<AppUser?>(
+      stream: AuthService.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        final user = snapshot.data;
+
+        if (user == null) {
+          return const LoginScreen();
+        }
+
+        return AppShell(user: user, firebaseReady: firebaseReady);
+      },
     );
   }
 }
