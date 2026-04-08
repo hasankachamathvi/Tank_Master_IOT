@@ -1,0 +1,150 @@
+import 'package:flutter/material.dart';
+
+import '../services/auth_service.dart';
+import 'register_screen.dart';
+
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  bool _submitting = false;
+  String? _error;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    setState(() {
+      _submitting = true;
+      _error = null;
+    });
+
+    final error = await AuthService.instance.login(
+      email: _emailController.text,
+      password: _passwordController.text,
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _submitting = false;
+      _error = error;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        width: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFFDCEEFD), Color(0xFFEAF3FF)],
+          ),
+        ),
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 420),
+              child: Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const Icon(Icons.water_drop, size: 40, color: Color(0xFF1565C0)),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Tank Master Login',
+                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF0D47A1)),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: _emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          decoration: const InputDecoration(labelText: 'Email'),
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty || !value.contains('@')) {
+                              return 'Enter a valid email';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: _passwordController,
+                          obscureText: true,
+                          decoration: const InputDecoration(labelText: 'Password'),
+                          validator: (value) {
+                            if (value == null || value.length < 6) {
+                              return 'Password must be at least 6 characters';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        if (_error != null)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: Text(_error!, style: const TextStyle(color: Colors.red)),
+                          ),
+                        FilledButton(
+                          onPressed: _submitting ? null : _submit,
+                          child: Text(_submitting ? 'Signing In...' : 'Login'),
+                        ),
+                        const SizedBox(height: 12),
+                        TextButton(
+                          onPressed: _submitting
+                              ? null
+                              : () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute<void>(
+                                      builder: (_) => const RegisterScreen(),
+                                    ),
+                                  );
+                                },
+                          child: const Text('Create a new account'),
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Demo login: demo@tankmaster.com / demo1234',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 12, color: Colors.black54),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
