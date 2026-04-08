@@ -95,6 +95,35 @@ class _DashboardPageState extends State<DashboardPage> {
         Card(
           child: Padding(
             padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                _TankView(level: _tank.level),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Tank Overview',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 8),
+                      Text('Current Status: ${_tank.status}'),
+                      const SizedBox(height: 4),
+                      Text('Water Level: ${_tank.level.toStringAsFixed(1)}%'),
+                      const SizedBox(height: 4),
+                      Text('Pump: ${_tank.pump ? 'Running' : 'Stopped'}'),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -161,7 +190,79 @@ class _DashboardPageState extends State<DashboardPage> {
           icon: Icon(_tank.pump ? Icons.toggle_off : Icons.toggle_on),
           label: Text(_tank.pump ? 'Turn Off Pump' : 'Turn On Pump'),
         ),
+        const SizedBox(height: 12),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Quick Recommendations',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                ),
+                const SizedBox(height: 8),
+                Text(_tank.level <= 25 ? 'Fill the tank soon to avoid low-level alerts.' : 'Water level is healthy.'),
+                const SizedBox(height: 4),
+                Text(_tank.flow <= 0 ? 'No active flow detected right now.' : 'Flow is active and stable.'),
+              ],
+            ),
+          ),
+        ),
       ],
+    );
+  }
+}
+
+class _TankView extends StatelessWidget {
+  const _TankView({required this.level});
+
+  final double level;
+
+  @override
+  Widget build(BuildContext context) {
+    final normalized = (level.clamp(0, 100)) / 100;
+    final fillColor = normalized >= 0.8
+        ? const Color(0xFF1565C0)
+        : normalized >= 0.35
+            ? const Color(0xFF1E88E5)
+            : const Color(0xFF64B5F6);
+
+    return SizedBox(
+      width: 86,
+      height: 140,
+      child: Stack(
+        alignment: Alignment.bottomCenter,
+        children: [
+          Container(
+            width: 78,
+            height: 132,
+            decoration: BoxDecoration(
+              color: const Color(0xFFE3F2FD),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: const Color(0xFF1565C0), width: 2),
+            ),
+          ),
+          Container(
+            width: 78,
+            height: 132 * normalized,
+            decoration: BoxDecoration(
+              color: fillColor,
+              borderRadius: BorderRadius.vertical(
+                bottom: const Radius.circular(12),
+                top: Radius.circular(normalized > 0.95 ? 12 : 6),
+              ),
+            ),
+          ),
+          Positioned(
+            top: 6,
+            child: Text(
+              '${level.toStringAsFixed(0)}%',
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0D47A1)),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
