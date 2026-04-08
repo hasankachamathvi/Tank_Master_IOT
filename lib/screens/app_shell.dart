@@ -5,6 +5,7 @@ import '../services/auth_service.dart';
 import 'alerts_page.dart';
 import 'dashboard_page.dart';
 import 'profile_page.dart';
+import 'tanks_page.dart';
 import 'usage_page.dart';
 
 class AppShell extends StatefulWidget {
@@ -28,6 +29,7 @@ class _AppShellState extends State<AppShell> {
   Widget build(BuildContext context) {
     final pages = <Widget>[
       DashboardPage(firebaseReady: widget.firebaseReady),
+      const TanksPage(),
       const UsagePage(),
       const AlertsPage(),
       ProfilePage(
@@ -40,6 +42,7 @@ class _AppShellState extends State<AppShell> {
 
     final titles = <String>[
       'Dashboard',
+      'Tanks',
       'Usage',
       'Alerts',
       'Profile',
@@ -63,6 +66,7 @@ class _AppShellState extends State<AppShell> {
         },
         destinations: const [
           NavigationDestination(icon: Icon(Icons.dashboard), label: 'Dashboard'),
+          NavigationDestination(icon: Icon(Icons.water), label: 'Tanks'),
           NavigationDestination(icon: Icon(Icons.insights), label: 'Usage'),
           NavigationDestination(icon: Icon(Icons.notifications), label: 'Alerts'),
           NavigationDestination(icon: Icon(Icons.person), label: 'Profile'),
