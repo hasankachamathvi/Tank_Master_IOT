@@ -55,7 +55,8 @@ class _DashboardState extends State<Dashboard>
       onError: (Object err) 
       {
         if (!mounted) return;
-        setState(() {
+        setState(() 
+        {
           _isLoading = false;
           _error = 'Unable to read tank data';
         });
