@@ -6,7 +6,8 @@ import '../models/tank_model.dart';
 import '../services/firebase_service.dart';
 
 // Main dashboard screen that displays real-time tank data and controls
-class Dashboard extends StatefulWidget {
+class Dashboard extends StatefulWidget 
+{
   const Dashboard({super.key, required this.firebaseReady});
 
   final bool firebaseReady;
