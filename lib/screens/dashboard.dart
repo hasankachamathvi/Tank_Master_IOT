@@ -82,7 +82,8 @@ class _DashboardState extends State<Dashboard>
       return;
     }
 
-    if (_isTogglingPump) {
+    if (_isTogglingPump) 
+    {
       return;
     }
 
