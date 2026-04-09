@@ -29,6 +29,7 @@ class _DashboardState extends State<Dashboard> {
 
   StreamSubscription<TankModel>? _subscription;
   bool _isLoading = true;
+  bool _isRefreshing = false;
   bool _isTogglingPump = false;
   String? _error;
   DateTime? _lastUpdatedAt;
@@ -96,6 +97,14 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Future<void> _refreshDashboard() async {
+    if (_isRefreshing) {
+      return;
+    }
+
+    setState(() {
+      _isRefreshing = true;
+    });
+
     try {
       final latestTank = await _firebaseService.getTankData().first.timeout(const Duration(seconds: 5));
 
@@ -115,6 +124,11 @@ class _DashboardState extends State<Dashboard> {
       if (!mounted) return;
       setState(() {
         _error = 'Could not refresh tank data.';
+      });
+    } finally {
+      if (!mounted) return;
+      setState(() {
+        _isRefreshing = false;
       });
     }
   }
@@ -138,6 +152,60 @@ class _DashboardState extends State<Dashboard> {
     return 'Last updated ${time.format(context)}';
   }
 
+  String _dataFreshnessLabel() {
+    if (_lastUpdatedAt == null) {
+      return 'Awaiting data';
+    }
+
+    final seconds = DateTime.now().difference(_lastUpdatedAt!).inSeconds;
+
+    if (seconds < 30) {
+      return 'Live';
+    }
+    if (seconds < 120) {
+      return 'Recent';
+    }
+    return 'Stale';
+  }
+
+  Color _dataFreshnessColor() {
+    final freshness = _dataFreshnessLabel();
+
+    if (freshness == 'Live') {
+      return Colors.green;
+    }
+    if (freshness == 'Recent') {
+      return Colors.orange;
+    }
+    return Colors.red;
+  }
+
+  String _usageTrendLabel() {
+    if (_tank.dailyUsage <= 0 && _tank.monthlyUsage <= 0) {
+      return 'No usage detected';
+    }
+
+    final avgDaily = _tank.monthlyUsage / 30;
+
+    if (_tank.dailyUsage > avgDaily * 1.2) {
+      return 'Above monthly trend';
+    }
+    if (_tank.dailyUsage < avgDaily * 0.8) {
+      return 'Below monthly trend';
+    }
+    return 'On monthly trend';
+  }
+
+  String _levelHint() {
+    if (_tank.level >= 95) {
+      return 'Near full capacity';
+    }
+    if (_tank.level <= 15) {
+      return 'Refill recommended';
+    }
+    return 'Level is in a safe range';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -147,8 +215,14 @@ class _DashboardState extends State<Dashboard> {
         foregroundColor: Colors.white,
         actions: [
           IconButton(
-            onPressed: _refreshDashboard,
-            icon: const Icon(Icons.refresh),
+            onPressed: _isRefreshing ? null : _refreshDashboard,
+            icon: _isRefreshing
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                  )
+                : const Icon(Icons.refresh),
             tooltip: 'Refresh now',
           ),
         ],
@@ -190,6 +264,28 @@ class _DashboardState extends State<Dashboard> {
                         _lastUpdatedLabel(),
                         style: const TextStyle(fontSize: 13, color: Colors.black54),
                       ),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          _StatusChip(
+                            icon: Icons.sync,
+                            text: _dataFreshnessLabel(),
+                            color: _dataFreshnessColor(),
+                          ),
+                          _StatusChip(
+                            icon: Icons.water_drop,
+                            text: _tank.status,
+                            color: _levelColor(_tank.level),
+                          ),
+                          _StatusChip(
+                            icon: _tank.pump ? Icons.power : Icons.power_off,
+                            text: _tank.pump ? 'Pump ON' : 'Pump OFF',
+                            color: _tank.pump ? Colors.green : Colors.grey,
+                          ),
+                        ],
+                      ),
                       const SizedBox(height: 12),
                       Row(
                         children: [
@@ -213,14 +309,22 @@ class _DashboardState extends State<Dashboard> {
                       const SizedBox(height: 20),
                       const Text('Water Level', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
                       const SizedBox(height: 10),
-                      LinearProgressIndicator(
-                        value: (_tank.level.clamp(0, 100)) / 100,
-                        color: _levelColor(_tank.level),
-                        minHeight: 18,
-                        borderRadius: BorderRadius.circular(12),
+                      TweenAnimationBuilder<double>(
+                        tween: Tween<double>(begin: 0, end: (_tank.level.clamp(0, 100)) / 100),
+                        duration: const Duration(milliseconds: 700),
+                        builder: (context, animatedLevel, _) {
+                          return LinearProgressIndicator(
+                            value: animatedLevel,
+                            color: _levelColor(_tank.level),
+                            minHeight: 18,
+                            borderRadius: BorderRadius.circular(12),
+                          );
+                        },
                       ),
                       const SizedBox(height: 10),
                       Text('${_tank.level.toStringAsFixed(1)} %', style: const TextStyle(fontSize: 18)),
+                      const SizedBox(height: 4),
+                      Text(_levelHint(), style: const TextStyle(fontSize: 13, color: Colors.black54)),
                       const SizedBox(height: 16),
                       Text('Status: ${_tank.status}', style: const TextStyle(fontSize: 18)),
                       const SizedBox(height: 24),
@@ -230,6 +334,12 @@ class _DashboardState extends State<Dashboard> {
                           const SizedBox(width: 12),
                           Expanded(child: _UsageCard(title: 'Monthly Usage', value: '${_tank.monthlyUsage.toStringAsFixed(1)} L')),
                         ],
+                      ),
+                      const SizedBox(height: 12),
+                      _OverviewCard(
+                        icon: Icons.insights,
+                        title: 'Usage Insight',
+                        value: _usageTrendLabel(),
                       ),
                       const SizedBox(height: 24),
                       if (_tank.overflowAlert || _tank.lowLevelAlert) ...[
@@ -318,6 +428,37 @@ class _OverviewCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _StatusChip extends StatelessWidget {
+  const _StatusChip({required this.icon, required this.text, required this.color});
+
+  final IconData icon;
+  final String text;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: color.withOpacity(0.35)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: color),
+          const SizedBox(width: 6),
+          Text(
+            text,
+            style: TextStyle(fontSize: 12, color: color, fontWeight: FontWeight.w600),
+          ),
+        ],
       ),
     );
   }
