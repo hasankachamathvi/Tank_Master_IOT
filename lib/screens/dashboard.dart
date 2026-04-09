@@ -29,7 +29,9 @@ class _DashboardState extends State<Dashboard> {
 
   StreamSubscription<TankModel>? _subscription;
   bool _isLoading = true;
+  bool _isTogglingPump = false;
   String? _error;
+  DateTime? _lastUpdatedAt;
 
   @override
   void initState() {
@@ -41,6 +43,7 @@ class _DashboardState extends State<Dashboard> {
           _tank = tank;
           _isLoading = false;
           _error = null;
+          _lastUpdatedAt = DateTime.now();
         });
       },
       onError: (Object err) {
@@ -60,8 +63,79 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Future<void> _togglePump() async {
+    if (!widget.firebaseReady) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Firebase is not configured. Pump control is disabled.')),
+      );
+      return;
+    }
+
+    if (_isTogglingPump) {
+      return;
+    }
+
     final nextState = !_tank.pump;
-    await _firebaseService.updatePump(nextState);
+
+    setState(() {
+      _isTogglingPump = true;
+    });
+
+    try {
+      await _firebaseService.updatePump(nextState);
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to update pump status. Please try again.')),
+      );
+    } finally {
+      if (!mounted) return;
+      setState(() {
+        _isTogglingPump = false;
+      });
+    }
+  }
+
+  Future<void> _refreshDashboard() async {
+    try {
+      final latestTank = await _firebaseService.getTankData().first.timeout(const Duration(seconds: 5));
+
+      if (!mounted) return;
+
+      setState(() {
+        _tank = latestTank;
+        _error = null;
+        _lastUpdatedAt = DateTime.now();
+      });
+    } on TimeoutException {
+      if (!mounted) return;
+      setState(() {
+        _error = 'Refresh timed out. Please pull to refresh again.';
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _error = 'Could not refresh tank data.';
+      });
+    }
+  }
+
+  Color _levelColor(double level) {
+    if (level >= 80) {
+      return Colors.blue;
+    }
+    if (level <= 30) {
+      return Colors.orange;
+    }
+    return Colors.green;
+  }
+
+  String _lastUpdatedLabel() {
+    if (_lastUpdatedAt == null) {
+      return 'Waiting for live data...';
+    }
+
+    final time = TimeOfDay.fromDateTime(_lastUpdatedAt!);
+    return 'Last updated ${time.format(context)}';
   }
 
   @override
@@ -71,13 +145,36 @@ class _DashboardState extends State<Dashboard> {
         title: const Text('Water Tank Dashboard'),
         backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            onPressed: _refreshDashboard,
+            icon: const Icon(Icons.refresh),
+            tooltip: 'Refresh now',
+          ),
+        ],
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
-              ? Center(child: Text(_error!))
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(_error!, textAlign: TextAlign.center),
+                        const SizedBox(height: 12),
+                        OutlinedButton.icon(
+                          onPressed: _refreshDashboard,
+                          icon: const Icon(Icons.refresh),
+                          label: const Text('Retry'),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
               : RefreshIndicator(
-                  onRefresh: () async {},
+                  onRefresh: _refreshDashboard,
                   child: ListView(
                     padding: const EdgeInsets.all(20),
                     children: [
@@ -89,10 +186,36 @@ class _DashboardState extends State<Dashboard> {
                         ),
                         const SizedBox(height: 16),
                       ],
+                      Text(
+                        _lastUpdatedLabel(),
+                        style: const TextStyle(fontSize: 13, color: Colors.black54),
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _OverviewCard(
+                              icon: Icons.speed,
+                              title: 'Flow Rate',
+                              value: '${_tank.flow.toStringAsFixed(1)} L/min',
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _OverviewCard(
+                              icon: _tank.pump ? Icons.power : Icons.power_off,
+                              title: 'Pump',
+                              value: _tank.pump ? 'Running' : 'Stopped',
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
                       const Text('Water Level', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
                       const SizedBox(height: 10),
                       LinearProgressIndicator(
                         value: (_tank.level.clamp(0, 100)) / 100,
+                        color: _levelColor(_tank.level),
                         minHeight: 18,
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -100,8 +223,6 @@ class _DashboardState extends State<Dashboard> {
                       Text('${_tank.level.toStringAsFixed(1)} %', style: const TextStyle(fontSize: 18)),
                       const SizedBox(height: 16),
                       Text('Status: ${_tank.status}', style: const TextStyle(fontSize: 18)),
-                      const SizedBox(height: 8),
-                      Text('Flow: ${_tank.flow.toStringAsFixed(1)} L/min', style: const TextStyle(fontSize: 16)),
                       const SizedBox(height: 24),
                       Row(
                         children: [
@@ -129,8 +250,14 @@ class _DashboardState extends State<Dashboard> {
                         const SizedBox(height: 16),
                       ],
                       ElevatedButton(
-                        onPressed: _togglePump,
-                        child: Text(_tank.pump ? 'Turn OFF Pump' : 'Turn ON Pump'),
+                        onPressed: _isTogglingPump ? null : _togglePump,
+                        child: _isTogglingPump
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : Text(_tank.pump ? 'Turn OFF Pump' : 'Turn ON Pump'),
                       ),
                     ],
                   ),
@@ -156,6 +283,39 @@ class _UsageCard extends StatelessWidget {
             Text(title, style: const TextStyle(fontSize: 14, color: Colors.black54)),
             const SizedBox(height: 8),
             Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _OverviewCard extends StatelessWidget {
+  const _OverviewCard({required this.icon, required this.title, required this.value});
+
+  final IconData icon;
+  final String title;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            Icon(icon, size: 20, color: Colors.blue),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: const TextStyle(fontSize: 12, color: Colors.black54)),
+                  const SizedBox(height: 4),
+                  Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                ],
+              ),
+            ),
           ],
         ),
       ),
