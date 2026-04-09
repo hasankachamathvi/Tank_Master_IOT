@@ -89,7 +89,8 @@ class _DashboardState extends State<Dashboard>
 
     final nextState = !_tank.pump;
 
-    setState(() {
+    setState(() 
+    {
       _isTogglingPump = true;
     });
 
