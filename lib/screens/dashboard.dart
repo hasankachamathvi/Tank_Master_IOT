@@ -94,7 +94,8 @@ class _DashboardState extends State<Dashboard>
       _isTogglingPump = true;
     });
 
-    try {
+    try 
+    {
       await _firebaseService.updatePump(nextState);
     } catch (_) {
       if (!mounted) return;
