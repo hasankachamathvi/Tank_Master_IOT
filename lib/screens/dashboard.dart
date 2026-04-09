@@ -38,7 +38,8 @@ class _DashboardState extends State<Dashboard>
   DateTime? _lastUpdatedAt;
 
   @override
-  void initState() {
+  void initState() 
+  {
     super.initState();
     _subscription = _firebaseService.getTankData().listen(
       (tank) {
