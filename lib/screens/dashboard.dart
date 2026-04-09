@@ -74,7 +74,8 @@ class _DashboardState extends State<Dashboard>
 
   Future<void> _togglePump() async 
   {
-    if (!widget.firebaseReady) {
+    if (!widget.firebaseReady) 
+    {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Firebase is not configured. Pump control is disabled.')),
       );
