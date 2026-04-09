@@ -44,7 +44,8 @@ class _DashboardState extends State<Dashboard>
     _subscription = _firebaseService.getTankData().listen(
       (tank) {
         if (!mounted) return;
-        setState(() {
+        setState(() 
+        {
           _tank = tank;
           _isLoading = false;
           _error = null;
