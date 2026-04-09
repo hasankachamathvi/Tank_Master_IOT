@@ -66,7 +66,8 @@ class _DashboardState extends State<Dashboard>
   }
 
   @override
-  void dispose() {
+  void dispose() 
+  {
     _subscription?.cancel();
     super.dispose();
   }
