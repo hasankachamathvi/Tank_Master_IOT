@@ -16,7 +16,8 @@ class Dashboard extends StatefulWidget
   State<Dashboard> createState() => _DashboardState();
 }
 
-class _DashboardState extends State<Dashboard> {
+class _DashboardState extends State<Dashboard> 
+{
   final FirebaseService _firebaseService = FirebaseService();
 
   TankModel _tank = const TankModel(
