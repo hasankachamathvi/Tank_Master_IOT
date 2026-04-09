@@ -52,7 +52,8 @@ class _DashboardState extends State<Dashboard>
           _lastUpdatedAt = DateTime.now();
         });
       },
-      onError: (Object err) {
+      onError: (Object err) 
+      {
         if (!mounted) return;
         setState(() {
           _isLoading = false;
