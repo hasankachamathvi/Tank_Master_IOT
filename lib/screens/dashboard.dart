@@ -98,7 +98,8 @@ class _DashboardState extends State<Dashboard>
     {
       await _firebaseService.updatePump(nextState);
     } 
-    catch (_) {
+    catch (_) 
+    {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Failed to update pump status. Please try again.')),
