@@ -147,7 +147,8 @@ class _DashboardState extends State<Dashboard>
       setState(() {
         _error = 'Could not refresh tank data.';
       });
-    } finally {
+    } 
+    finally {
       if (!mounted) return;
       setState(() {
         _isRefreshing = false;
