@@ -116,7 +116,8 @@ class _DashboardState extends State<Dashboard>
   }
 
   Future<void> _refreshDashboard() async {
-    if (_isRefreshing) {
+    if (_isRefreshing) 
+    {
       return;
     }
 
