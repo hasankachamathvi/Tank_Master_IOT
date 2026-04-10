@@ -108,7 +108,8 @@ class _DashboardState extends State<Dashboard>
     finally 
     {
       if (!mounted) return;
-      setState(() {
+      setState(() 
+      {
         _isTogglingPump = false;
       });
     }
