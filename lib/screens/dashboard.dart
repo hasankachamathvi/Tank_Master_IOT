@@ -135,7 +135,8 @@ class _DashboardState extends State<Dashboard>
         _error = null;
         _lastUpdatedAt = DateTime.now();
       });
-    } on TimeoutException {
+    } 
+    on TimeoutException {
       if (!mounted) return;
       setState(() {
         _error = 'Refresh timed out. Please pull to refresh again.';
