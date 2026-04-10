@@ -464,7 +464,8 @@ class _StatusChip extends StatelessWidget {
   final Color color;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) 
+  {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
@@ -487,7 +488,8 @@ class _StatusChip extends StatelessWidget {
   }
 }
 
-class _AlertTile extends StatelessWidget {
+class _AlertTile extends StatelessWidget 
+{
   const _AlertTile({required this.title, required this.subtitle, required this.color});
 
   final String title;
