@@ -105,7 +105,8 @@ class _DashboardState extends State<Dashboard>
         const SnackBar(content: Text('Failed to update pump status. Please try again.')),
       );
     } 
-    finally {
+    finally 
+    {
       if (!mounted) return;
       setState(() {
         _isTogglingPump = false;
