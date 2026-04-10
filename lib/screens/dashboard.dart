@@ -141,7 +141,8 @@ class _DashboardState extends State<Dashboard>
       setState(() {
         _error = 'Refresh timed out. Please pull to refresh again.';
       });
-    } catch (_) {
+    } 
+    catch (_) {
       if (!mounted) return;
       setState(() {
         _error = 'Could not refresh tank data.';
