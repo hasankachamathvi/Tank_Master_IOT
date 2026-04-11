@@ -22,7 +22,8 @@ class _RegisterScreenState extends State<RegisterScreen>
   String? _error;
 
   @override
-  void dispose() {
+  void dispose() 
+  {
     _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
