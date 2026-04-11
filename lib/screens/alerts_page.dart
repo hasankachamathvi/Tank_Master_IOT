@@ -5,7 +5,8 @@ class AlertsPage extends StatelessWidget
   const AlertsPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) 
+  {
     const alerts = <Map<String, Object>>[
       {
         'title': 'Low Water Level',
