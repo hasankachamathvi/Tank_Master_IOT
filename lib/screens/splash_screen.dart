@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+// Simple splash screen with app logo and name
 class SplashScreen extends StatelessWidget 
 {
   const SplashScreen({super.key});
