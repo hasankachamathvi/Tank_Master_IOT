@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../services/auth_service.dart';
 
+// This screen is not currently linked in the app, but can be used to create new accounts for testing purposes. In a production app, you would want to add a link to this screen from the login page and handle account creation more robustly.
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
