@@ -497,7 +497,8 @@ class _AlertTile extends StatelessWidget
   final Color color;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) 
+  {
     return Card(
       color: color.withOpacity(0.1),
       child: ListTile(
