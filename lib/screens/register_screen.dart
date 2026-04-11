@@ -30,7 +30,8 @@ class _RegisterScreenState extends State<RegisterScreen>
     super.dispose();
   }
 
-  Future<void> _submit() async {
+  Future<void> _submit() async 
+  {
     if (!_formKey.currentState!.validate()) {
       return;
     }
