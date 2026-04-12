@@ -17,7 +17,8 @@ class DashboardPage extends StatefulWidget
 }
 
 /// _DashboardPageState manages the state of DashboardPage, including real-time data updates and pump control.
-class _DashboardPageState extends State<DashboardPage> {
+class _DashboardPageState extends State<DashboardPage> 
+{
   final FirebaseService _firebaseService = FirebaseService();
 
   TankModel _tank = const TankModel(
