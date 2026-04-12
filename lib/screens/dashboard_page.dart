@@ -219,6 +219,7 @@ class _DashboardPageState extends State<DashboardPage>
   }
 }
 
+/// _TankView is a custom widget that visually represents the tank's water level with a fill animation and color coding.
 class _TankView extends StatelessWidget {
   const _TankView({required this.level});
 
