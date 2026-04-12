@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../models/tank_model.dart';
 import '../services/firebase_service.dart';
 
+/// DashboardPage displays real-time tank data and allows pump control.
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key, required this.firebaseReady});
 
