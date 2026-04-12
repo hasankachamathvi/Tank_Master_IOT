@@ -30,7 +30,8 @@ class _AppShellState extends State<AppShell>
   int _index = 0;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) 
+  {
     final pages = <Widget>[
       DashboardPage(firebaseReady: widget.firebaseReady),
       const TanksPage(),
