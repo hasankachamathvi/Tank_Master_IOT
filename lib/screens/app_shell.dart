@@ -24,7 +24,9 @@ class AppShell extends StatefulWidget
   State<AppShell> createState() => _AppShellState();
 }
 
-class _AppShellState extends State<AppShell> {
+// The state of the AppShell manages the currently selected index for the bottom navigation and builds the appropriate page based on that index. It also defines the titles for each page to display in the app bar.
+class _AppShellState extends State<AppShell> 
+{
   int _index = 0;
 
   @override
