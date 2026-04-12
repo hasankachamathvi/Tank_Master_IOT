@@ -9,7 +9,8 @@ import 'tanks_page.dart';
 import 'usage_page.dart';
 
 // The main app shell that contains the bottom navigation and manages switching between the different pages. It also passes the authenticated user and Firebase readiness state down to the relevant pages.
-class AppShell extends StatefulWidget {
+class AppShell extends StatefulWidget 
+{
   const AppShell({
     super.key,
     required this.user,
