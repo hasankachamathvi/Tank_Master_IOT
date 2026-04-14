@@ -160,12 +160,12 @@ class _DashboardPageState extends State<DashboardPage>
 
   Color _levelColor(double level) {
     if (level >= 80) {
-      return Colors.blue;
+      return const Color(0xFF0D47A1);
     }
     if (level <= 30) {
-      return Colors.orange;
+      return const Color(0xFF1E88E5);
     }
-    return Colors.green;
+    return const Color(0xFF42A5F5);
   }
 
   String _lastUpdatedLabel() {
@@ -197,12 +197,12 @@ class _DashboardPageState extends State<DashboardPage>
     final freshness = _dataFreshnessLabel();
 
     if (freshness == 'Live') {
-      return Colors.green;
+      return const Color(0xFF1565C0);
     }
     if (freshness == 'Recent') {
-      return Colors.orange;
+      return const Color(0xFF1E88E5);
     }
-    return Colors.red;
+    return const Color(0xFF90CAF9);
   }
 
   String _usageTrendLabel() {
@@ -303,7 +303,7 @@ class _DashboardPageState extends State<DashboardPage>
               _StatusChip(
                 icon: _tank.pump ? Icons.power : Icons.power_off,
                 text: _tank.pump ? 'Pump ON' : 'Pump OFF',
-                color: _tank.pump ? Colors.green : Colors.grey,
+                color: _tank.pump ? const Color(0xFF1565C0) : const Color(0xFF607D8B),
               ),
             ],
           ),
@@ -324,11 +324,29 @@ class _DashboardPageState extends State<DashboardPage>
                           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 8),
-                        Text('Current Status: ${_tank.status}'),
+                        Row(
+                          children: [
+                            const Icon(Icons.info_outline, size: 16, color: Color(0xFF1565C0)),
+                            const SizedBox(width: 6),
+                            Expanded(child: Text('Current Status: ${_tank.status}')),
+                          ],
+                        ),
                         const SizedBox(height: 4),
-                        Text('Water Level: ${_tank.level.toStringAsFixed(1)}%'),
+                        Row(
+                          children: [
+                            const Icon(Icons.opacity, size: 16, color: Color(0xFF1565C0)),
+                            const SizedBox(width: 6),
+                            Expanded(child: Text('Water Level: ${_tank.level.toStringAsFixed(1)}%')),
+                          ],
+                        ),
                         const SizedBox(height: 4),
-                        Text('Pump: ${_tank.pump ? 'Running' : 'Stopped'}'),
+                        Row(
+                          children: [
+                            const Icon(Icons.power_settings_new, size: 16, color: Color(0xFF1565C0)),
+                            const SizedBox(width: 6),
+                            Expanded(child: Text('Pump: ${_tank.pump ? 'Running' : 'Stopped'}')),
+                          ],
+                        ),
                       ],
                     ),
                   ),
@@ -371,7 +389,7 @@ class _DashboardPageState extends State<DashboardPage>
                   title: 'Flow',
                   value: '${_tank.flow.toStringAsFixed(1)} L/min',
                   icon: Icons.water_drop,
-                  color: Colors.blue,
+                  color: const Color(0xFF1565C0),
                 ),
               ),
               const SizedBox(width: 12),
@@ -380,7 +398,7 @@ class _DashboardPageState extends State<DashboardPage>
                   title: 'Pump',
                   value: _tank.pump ? 'ON' : 'OFF',
                   icon: _tank.pump ? Icons.power : Icons.power_off,
-                  color: _tank.pump ? Colors.green : Colors.grey,
+                  color: _tank.pump ? const Color(0xFF1976D2) : const Color(0xFF607D8B),
                 ),
               ),
             ],
@@ -393,7 +411,7 @@ class _DashboardPageState extends State<DashboardPage>
                   title: 'Daily Usage',
                   value: '${_tank.dailyUsage.toStringAsFixed(1)} L',
                   icon: Icons.today,
-                  color: Colors.orange,
+                  color: const Color(0xFF42A5F5),
                 ),
               ),
               const SizedBox(width: 12),
@@ -402,7 +420,7 @@ class _DashboardPageState extends State<DashboardPage>
                   title: 'Monthly Usage',
                   value: '${_tank.monthlyUsage.toStringAsFixed(1)} L',
                   icon: Icons.calendar_month,
-                  color: Colors.indigo,
+                  color: const Color(0xFF0D47A1),
                 ),
               ),
             ],
@@ -468,9 +486,15 @@ class _DashboardPageState extends State<DashboardPage>
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                   ),
                   const SizedBox(height: 8),
-                  Text(_tank.level <= 25 ? 'Fill the tank soon to avoid low-level alerts.' : 'Water level is healthy.'),
+                  _RecommendationRow(
+                    icon: Icons.water,
+                    text: _tank.level <= 25 ? 'Fill the tank soon to avoid low-level alerts.' : 'Water level is healthy.',
+                  ),
                   const SizedBox(height: 4),
-                  Text(_tank.flow <= 0 ? 'No active flow detected right now.' : 'Flow is active and stable.'),
+                  _RecommendationRow(
+                    icon: Icons.timeline,
+                    text: _tank.flow <= 0 ? 'No active flow detected right now.' : 'Flow is active and stable.',
+                  ),
                 ],
               ),
             ),
@@ -616,6 +640,25 @@ class _AlertTile extends StatelessWidget {
         title: Text(title),
         subtitle: Text(subtitle),
       ),
+    );
+  }
+}
+
+class _RecommendationRow extends StatelessWidget {
+  const _RecommendationRow({required this.icon, required this.text});
+
+  final IconData icon;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 16, color: const Color(0xFF1565C0)),
+        const SizedBox(width: 8),
+        Expanded(child: Text(text)),
+      ],
     );
   }
 }
