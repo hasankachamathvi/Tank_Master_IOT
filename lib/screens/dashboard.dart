@@ -400,12 +400,14 @@ class _DashboardState extends State<Dashboard>
   }
 }
 
+// _MetricCard is a reusable widget that displays a metric with an icon, title, and value in a styled card format.
 class _UsageCard extends StatelessWidget {
   const _UsageCard({required this.title, required this.value});
 
   final String title;
   final String value;
 
+// The build method constructs the UI for the usage card, showing the title and value in a card layout.
   @override
   Widget build(BuildContext context) {
     return Card(
