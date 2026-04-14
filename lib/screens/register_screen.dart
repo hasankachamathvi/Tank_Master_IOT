@@ -62,6 +62,7 @@ class _RegisterScreenState extends State<RegisterScreen>
     });
   }
 
+// The build method constructs the UI for the registration screen, including form fields for name, email, and password, as well as a submit button. It also displays any error messages that occur during registration.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
