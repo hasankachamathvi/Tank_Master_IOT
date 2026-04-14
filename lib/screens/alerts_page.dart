@@ -91,7 +91,8 @@ class AlertsPage extends StatelessWidget
 }
 
 // _AlertSummaryCard is a reusable widget that displays a summary of alert counts with a label and color coding for different alert types (critical, warnings, resolved).
-class _AlertSummaryCard extends StatelessWidget {
+class _AlertSummaryCard extends StatelessWidget 
+{
   const _AlertSummaryCard({
     required this.label,
     required this.count,
