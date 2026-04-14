@@ -65,6 +65,7 @@ class _DashboardState extends State<Dashboard>
     );
   }
 
+// Clean up the stream subscription when the widget is disposed to prevent memory leaks.
   @override
   void dispose() 
   {
