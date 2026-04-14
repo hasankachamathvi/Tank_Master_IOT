@@ -103,6 +103,7 @@ class _AlertSummaryCard extends StatelessWidget
   final String count;
   final Color color;
 
+// The build method constructs the UI for the alert summary card, showing the count and label in a card layout with color coding.
   @override
   Widget build(BuildContext context) {
     return Card(
