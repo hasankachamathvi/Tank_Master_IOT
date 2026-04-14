@@ -73,6 +73,7 @@ class _DashboardPageState extends State<DashboardPage>
     await _firebaseService.updatePump(!_tank.pump);
   }
 
+// The build method renders the UI based on the current state of the tank data, showing loading indicators, error messages, and the main dashboard when data is available.
   @override
   Widget build(BuildContext context) 
   {
