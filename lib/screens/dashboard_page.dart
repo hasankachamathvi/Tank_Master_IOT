@@ -287,6 +287,7 @@ class _MetricCard extends StatelessWidget {
   final IconData icon;
   final Color color;
 
+// _MetricCard is a reusable widget that displays a metric with an icon, title, and value in a styled card format.
   @override
   Widget build(BuildContext context) {
     return Card(
