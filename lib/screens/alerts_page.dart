@@ -5,6 +5,7 @@ class AlertsPage extends StatelessWidget
 {
   const AlertsPage({super.key});
 
+// The build method constructs the UI for the alerts page, including a summary of alert counts and a list of individual alerts with their details and actions.
   @override
   Widget build(BuildContext context) 
   {
