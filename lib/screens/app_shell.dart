@@ -29,6 +29,7 @@ class _AppShellState extends State<AppShell>
 {
   int _index = 0;
 
+// The _index variable tracks which page is currently selected in the bottom navigation. The build method uses this index to determine which page to display and what title to show in the app bar.
   @override
   Widget build(BuildContext context) 
   {
