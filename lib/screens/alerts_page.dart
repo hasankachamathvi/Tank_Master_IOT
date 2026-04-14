@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+// AlertsPage displays a list of alerts and notifications related to the tank's status, including critical issues, warnings, and resolved alerts. It also provides a summary of alert counts and allows users to view details or manage notification rules.
 class AlertsPage extends StatelessWidget 
 {
   const AlertsPage({super.key});
