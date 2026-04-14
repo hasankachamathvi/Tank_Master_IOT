@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import 'register_screen.dart';
 
+// The login screen allows users to enter their email and password to authenticate with Firebase. It also provides a link to the registration screen for new users. Error messages are displayed if authentication fails, and a loading state is shown while the login request is in progress.
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
