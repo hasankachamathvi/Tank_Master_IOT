@@ -230,7 +230,8 @@ class _DashboardPageState extends State<DashboardPage>
       return const Center(child: CircularProgressIndicator());
     }
 
-    if (_error != null) {
+    if (_error != null) 
+    {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(20),
