@@ -55,7 +55,8 @@ class _LoginScreenState extends State<LoginScreen>
       return;
     }
 
-    setState(() {
+    setState(() 
+    {
       _submitting = false;
       _error = error;
     });
