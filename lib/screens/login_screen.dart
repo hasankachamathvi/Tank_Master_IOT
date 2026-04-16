@@ -24,7 +24,8 @@ class _LoginScreenState extends State<LoginScreen>
   String? _error;
 
   @override
-  void dispose() {
+  void dispose() 
+  {
     _emailController.dispose();
     _passwordController.dispose();
     _passwordFocusNode.dispose();
