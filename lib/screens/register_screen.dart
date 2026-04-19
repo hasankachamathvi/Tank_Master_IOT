@@ -47,7 +47,8 @@ class _RegisterScreenState extends State<RegisterScreen>
       password: _passwordController.text,
     );
 
-    if (!mounted) {
+    if (!mounted) 
+    {
       return;
     }
 
