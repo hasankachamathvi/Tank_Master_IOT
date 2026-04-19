@@ -51,7 +51,8 @@ class _RegisterScreenState extends State<RegisterScreen>
       return;
     }
 
-    if (error == null) {
+    if (error == null) 
+    {
       Navigator.of(context).pop();
       return;
     }
