@@ -23,6 +23,7 @@ class _LoginScreenState extends State<LoginScreen>
   bool _obscurePassword = true;
   String? _error;
 
+// The dispose method is overridden to clean up the controllers and focus node when the widget is removed from the widget tree, preventing memory leaks.
   @override
   void dispose() 
   {
