@@ -62,6 +62,7 @@ class _LoginScreenState extends State<LoginScreen>
     });
   }
 
+// The build method constructs the UI for the login screen, including form fields for email and password, a submit button, and a link to the registration screen. It also displays any error messages that occur during login and shows a loading indicator while the login request is being processed.
   @override
   Widget build(BuildContext context) 
   {
