@@ -32,7 +32,8 @@ class _RegisterScreenState extends State<RegisterScreen>
 
   Future<void> _submit() async 
   {
-    if (!_formKey.currentState!.validate()) {
+    if (!_formKey.currentState!.validate()) 
+    {
       return;
     }
 
