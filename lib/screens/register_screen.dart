@@ -56,7 +56,8 @@ class _RegisterScreenState extends State<RegisterScreen>
       return;
     }
 
-    setState(() {
+    setState(() 
+    {
       _submitting = false;
       _error = error;
     });
