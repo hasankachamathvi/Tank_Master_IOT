@@ -109,7 +109,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                             return null;
                           },
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 12), // Add spacing between email and password fields
                         TextFormField(
                           controller: _passwordController,
                           obscureText: true,
