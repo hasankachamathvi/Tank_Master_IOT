@@ -72,6 +72,7 @@ class _LoginScreenState extends State<LoginScreen>
   @override
   Widget build(BuildContext context) 
   {
+    // The Scaffold provides the basic visual structure for the login screen, including a background gradient and a centered card containing the login form. The GestureDetector allows users to tap outside the form to dismiss the keyboard.
     return Scaffold(
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
