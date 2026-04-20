@@ -54,6 +54,7 @@ class _LoginScreenState extends State<LoginScreen>
       password: _passwordController.text,
     );
 
+// After the login attempt, the state is updated to reflect that the submission is no longer in progress. If there was an error, it is stored in the _error variable to be displayed in the UI. The mounted check ensures that the widget is still part of the widget tree before attempting to update the state, preventing potential errors if the user navigates away from the screen during the login process.
     if (!mounted) 
     {
       return;
