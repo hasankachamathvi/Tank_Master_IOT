@@ -39,7 +39,7 @@ class _LoginScreenState extends State<LoginScreen>
     // Validate the form fields before attempting to log in. If validation fails, the method returns early without making a login request.
     if (!_formKey.currentState!.validate()) 
     {
-      return;
+      return; // Form is not valid, do not proceed with login
     }
 
     setState(() 
