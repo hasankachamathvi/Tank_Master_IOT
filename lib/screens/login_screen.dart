@@ -33,6 +33,7 @@ class _LoginScreenState extends State<LoginScreen>
     super.dispose();
   }
 
+// The _submit method is responsible for validating the form, sending the login request to the AuthService, and handling the response. It updates the UI to show a loading state while the request is in progress and displays any error messages if the login fails.
   Future<void> _submit() async 
   {
     if (!_formKey.currentState!.validate()) 
