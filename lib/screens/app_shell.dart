@@ -41,7 +41,8 @@ class _AppShellState extends State<AppShell>
       const AlertsPage(),
       ProfilePage(
         user: widget.user,
-        onLogout: () {
+        onLogout: () 
+        {
           AuthService.instance.logout();
         },
       ),
