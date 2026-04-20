@@ -61,7 +61,6 @@ class _LoginScreenState extends State<LoginScreen>
     }
 
     // Update the state to reflect the result of the login attempt. If there was an error, it will be displayed in the UI. If the login was successful, the user will be navigated to the home screen (handled by the AuthService).
-
     setState(() 
     {
       _submitting = false;
