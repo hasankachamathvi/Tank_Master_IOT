@@ -48,6 +48,7 @@ class _LoginScreenState extends State<LoginScreen>
       _error = null;
     });
 
+// The login method of the AuthService is called with the email and password from the form. The result is an error message if the login fails, or null if it succeeds.
     final error = await AuthService.instance.login(
       email: _emailController.text.trim(),
       password: _passwordController.text,
