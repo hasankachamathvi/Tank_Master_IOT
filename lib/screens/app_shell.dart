@@ -48,7 +48,8 @@ class _AppShellState extends State<AppShell>
       ),
     ];
 
-    final titles = <String>[
+    final titles = <String>
+    [
       'Dashboard',
       'Tanks',
       'Usage',
