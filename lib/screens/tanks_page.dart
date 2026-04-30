@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-class TanksPage extends StatelessWidget {
+class TanksPage extends StatelessWidget 
+{
   const TanksPage({super.key});
 
   @override
