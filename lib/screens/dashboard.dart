@@ -416,7 +416,8 @@ class _UsageCard extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children:
+           [
             Text(title, style: const TextStyle(fontSize: 14, color: Colors.black54)),
             const SizedBox(height: 8),
             Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
