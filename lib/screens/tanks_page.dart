@@ -4,7 +4,8 @@ class TanksPage extends StatelessWidget {
   const TanksPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) 
+  {
     const tanks = <Map<String, Object>>[
       {
         'name': 'Main Tank',
