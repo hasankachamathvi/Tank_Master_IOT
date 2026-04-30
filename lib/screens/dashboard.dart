@@ -463,7 +463,8 @@ class _OverviewCard extends StatelessWidget
   }
 }
 
-class _StatusChip extends StatelessWidget {
+class _StatusChip extends StatelessWidget 
+{
   const _StatusChip({required this.icon, required this.text, required this.color});
 
   final IconData icon;
