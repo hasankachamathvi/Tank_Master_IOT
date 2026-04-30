@@ -111,7 +111,8 @@ class TanksPage extends StatelessWidget
   }
 }
 
-class TankDetailsPage extends StatelessWidget {
+class TankDetailsPage extends StatelessWidget 
+{
   const TankDetailsPage({
     super.key,
     required this.name,
