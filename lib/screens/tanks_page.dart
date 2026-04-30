@@ -129,7 +129,8 @@ class TankDetailsPage extends StatelessWidget
   final String status;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) 
+  {
     final availableWater = (capacity * (level / 100)).round();
 
     return Scaffold(
