@@ -437,7 +437,8 @@ class _OverviewCard extends StatelessWidget
   final String value;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) 
+  {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(12),
