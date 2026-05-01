@@ -482,7 +482,8 @@ class _StatusChip extends StatelessWidget
         borderRadius: BorderRadius.circular(999),
         border: Border.all(color: color.withOpacity(0.35)),
       ),
-      child: Row(
+      child: Row
+      (
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 14, color: color),
