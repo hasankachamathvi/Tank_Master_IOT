@@ -501,7 +501,8 @@ class _StatusChip extends StatelessWidget
 
 class _AlertTile extends StatelessWidget 
 {
-  const _AlertTile({required this.title, required this.subtitle, required this.color});
+  const _AlertTile({
+    required this.title, required this.subtitle, required this.color});
 
   final String title;
   final String subtitle;
