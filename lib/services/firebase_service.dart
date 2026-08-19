@@ -31,6 +31,7 @@ class FirebaseService {
   }
 
   /// Get real-time tank data stream
+  /// Emits fallback data immediately, then updates with real-time data when available.
   Stream<TankModel> getTankData() {
     final db = _safeDbRef();
 
@@ -39,36 +40,36 @@ class FirebaseService {
       return Stream.value(_fallbackTank);
     }
 
-    return db.child('tank').onValue
-        .timeout(
-          const Duration(seconds: 5),
-          onTimeout: (sink) {
-            debugPrint('Database timeout, using fallback data');
-            sink.addError(TimeoutException('Database timeout'));
-          },
-        )
-        .map((event) {
+    return Stream.multi((controller) {
+      // Emit fallback immediately so UI never hangs
+      controller.add(_fallbackTank);
+
+      // Try to connect to real-time database
+      final sub = db.child('tank').onValue.listen(
+        (event) {
           final raw = event.snapshot.value;
 
           if (raw is Map) {
             try {
-              return TankModel.fromMap(raw.cast<String, dynamic>());
+              controller.add(TankModel.fromMap(raw.cast<String, dynamic>()));
             } catch (e) {
               debugPrint('Error parsing tank data: $e');
-              return _fallbackTank;
+              controller.add(_fallbackTank);
             }
+          } else {
+            debugPrint('No tank data found in database, using fallback');
+            controller.add(_fallbackTank);
           }
+        },
+        onError: (Object error) {
+          debugPrint('Stream error caught, using fallback: $error');
+          controller.add(_fallbackTank);
+        },
+        cancelOnError: false,
+      );
 
-          return _fallbackTank;
-        })
-        .transform(
-          StreamTransformer.fromHandlers(
-            handleError: (error, stackTrace, sink) {
-              debugPrint('Stream error caught, using fallback: $error');
-              sink.add(_fallbackTank);
-            },
-          ),
-        );
+      controller.onCancel = sub.cancel;
+    });
   }
 
   /// Update pump status

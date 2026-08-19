@@ -522,6 +522,46 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
             ),
           ),
           const SizedBox(height: 12),
+          // Manual Tank Level Simulator
+          _SimulatorCard(
+            tank: _tank,
+            onLevelChanged: (level) async {
+              if (!widget.firebaseReady) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Firebase is not configured. Cannot update level.')),
+                );
+                return;
+              }
+              try {
+                await _firebaseService.updateTankLevel(level);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Tank level updated to ${level.toStringAsFixed(0)}%'),
+                    duration: const Duration(seconds: 1),
+                  ),
+                );
+              } catch (_) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Failed to update tank level.')),
+                );
+              }
+            },
+            onFlowChanged: (flow) async {
+              if (!widget.firebaseReady) return;
+              try {
+                await _firebaseService.writeData('tank', {
+                  'level': _tank.level,
+                  'pump': _tank.pump,
+                  'flow': flow,
+                  'dailyUsage': _tank.dailyUsage,
+                  'monthlyUsage': _tank.monthlyUsage,
+                  'overflowAlert': _tank.overflowAlert,
+                  'lowLevelAlert': _tank.lowLevelAlert,
+                });
+              } catch (_) {}
+            },
+          ),
+          const SizedBox(height: 12),
           Card(
             child: Padding(
               padding: const EdgeInsets.all(14),
@@ -933,6 +973,178 @@ class _RecommendationRow extends StatelessWidget {
         const SizedBox(width: 8),
         Expanded(child: Text(text)),
       ],
+    );
+  }
+}
+
+/// Manual tank level simulator - allows changing tank level without a physical device
+class _SimulatorCard extends StatefulWidget {
+  const _SimulatorCard({
+    required this.tank,
+    required this.onLevelChanged,
+    required this.onFlowChanged,
+  });
+
+  final TankModel tank;
+  final Future<void> Function(double level) onLevelChanged;
+  final Future<void> Function(double flow) onFlowChanged;
+
+  @override
+  State<_SimulatorCard> createState() => _SimulatorCardState();
+}
+
+class _SimulatorCardState extends State<_SimulatorCard> {
+  late double _level;
+  late double _flow;
+
+  @override
+  void initState() {
+    super.initState();
+    _level = widget.tank.level;
+    _flow = widget.tank.flow;
+  }
+
+  @override
+  void didUpdateWidget(covariant _SimulatorCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.tank.level != widget.tank.level) {
+      _level = widget.tank.level;
+    }
+    if (oldWidget.tank.flow != widget.tank.flow) {
+      _flow = widget.tank.flow;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final color = _level >= 80
+        ? const Color(0xFF1565C0)
+        : _level >= 40
+            ? const Color(0xFF1E88E5)
+            : const Color(0xFFFB8C00);
+
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE3F2FD),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.tune, color: Color(0xFF1565C0), size: 20),
+                ),
+                const SizedBox(width: 10),
+                const Text(
+                  'Manual Tank Simulator',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                ),
+                const Spacer(),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE8F5E9),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.smartphone, size: 12, color: Color(0xFF2E7D32)),
+                      SizedBox(width: 4),
+                      Text(
+                        'No device needed',
+                        style: TextStyle(fontSize: 11, color: Color(0xFF2E7D32)),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                const Text('Tank Level', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                const Spacer(),
+                Text(
+                  '${_level.toStringAsFixed(0)}%',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                    color: color,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Slider(
+              value: _level,
+              min: 0,
+              max: 100,
+              divisions: 100,
+              activeColor: color,
+              inactiveColor: const Color(0xFFE3F2FD),
+              label: '${_level.toStringAsFixed(0)}%',
+              onChanged: (value) {
+                setState(() {
+                  _level = value;
+                });
+              },
+              onChangeEnd: (value) {
+                widget.onLevelChanged(value);
+              },
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Text('Flow Rate', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                const Spacer(),
+                Text(
+                  '${_flow.toStringAsFixed(1)} L/min',
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Slider(
+              value: _flow,
+              min: 0,
+              max: 50,
+              divisions: 50,
+              activeColor: const Color(0xFF42A5F5),
+              inactiveColor: const Color(0xFFE3F2FD),
+              label: '${_flow.toStringAsFixed(1)} L/min',
+              onChanged: (value) {
+                setState(() {
+                  _flow = value;
+                });
+              },
+              onChangeEnd: (value) {
+                widget.onFlowChanged(value);
+              },
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(Icons.info_outline, size: 14, color: Colors.grey.shade500),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    'Drag the sliders to simulate tank data. Changes are saved to Firebase.',
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
