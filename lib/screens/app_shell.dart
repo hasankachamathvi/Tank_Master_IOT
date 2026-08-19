@@ -8,11 +8,8 @@ import 'profile_page.dart';
 import 'tanks_page.dart';
 import 'usage_page.dart';
 
-// The main app shell that contains the bottom navigation and manages switching between the different pages. It also passes the authenticated user and Firebase readiness state down to the relevant pages.
-class AppShell extends StatefulWidget 
-{
-  const AppShell(
-    {
+class AppShell extends StatefulWidget {
+  const AppShell({
     super.key,
     required this.user,
     required this.firebaseReady,
@@ -25,15 +22,11 @@ class AppShell extends StatefulWidget
   State<AppShell> createState() => _AppShellState();
 }
 
-// The state of the AppShell manages the currently selected index for the bottom navigation and builds the appropriate page based on that index. It also defines the titles for each page to display in the app bar.
-class _AppShellState extends State<AppShell> 
-{
+class _AppShellState extends State<AppShell> {
   int _index = 0;
 
-// The _index variable tracks which page is currently selected in the bottom navigation. The build method uses this index to determine which page to display and what title to show in the app bar.
   @override
-  Widget build(BuildContext context) 
-  {
+  Widget build(BuildContext context) {
     final pages = <Widget>[
       DashboardPage(firebaseReady: widget.firebaseReady),
       const TanksPage(),
@@ -41,15 +34,13 @@ class _AppShellState extends State<AppShell>
       const AlertsPage(),
       ProfilePage(
         user: widget.user,
-        onLogout: () 
-        {
+        onLogout: () {
           AuthService.instance.logout();
         },
       ),
     ];
 
-    final titles = <String>
-    [
+    final titles = <String>[
       'Dashboard',
       'Tanks',
       'Usage',
@@ -62,8 +53,29 @@ class _AppShellState extends State<AppShell>
         title: Text('Tank Master - ${titles[_index]}'),
         backgroundColor: const Color(0xFF1565C0),
         foregroundColor: Colors.white,
+        elevation: 0,
       ),
-      body: pages[_index],
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 400),
+        switchInCurve: Curves.easeInOut,
+        switchOutCurve: Curves.easeInOut,
+        transitionBuilder: (child, animation) {
+          return FadeTransition(
+            opacity: animation,
+            child: SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(0.05, 0),
+                end: Offset.zero,
+              ).animate(animation),
+              child: child,
+            ),
+          );
+        },
+        child: KeyedSubtree(
+          key: ValueKey<int>(_index),
+          child: pages[_index],
+        ),
+      ),
       bottomNavigationBar: NavigationBar(
         backgroundColor: const Color(0xFFDCEEFD),
         indicatorColor: const Color(0xFF90CAF9),
@@ -74,11 +86,11 @@ class _AppShellState extends State<AppShell>
           });
         },
         destinations: const [
-          NavigationDestination(icon: Icon(Icons.dashboard), label: 'Dashboard'),
-          NavigationDestination(icon: Icon(Icons.water), label: 'Tanks'),
-          NavigationDestination(icon: Icon(Icons.insights), label: 'Usage'),
-          NavigationDestination(icon: Icon(Icons.notifications), label: 'Alerts'),
-          NavigationDestination(icon: Icon(Icons.person), label: 'Profile'),
+          NavigationDestination(icon: Icon(Icons.dashboard_outlined), selectedIcon: Icon(Icons.dashboard), label: 'Dashboard'),
+          NavigationDestination(icon: Icon(Icons.water_outlined), selectedIcon: Icon(Icons.water), label: 'Tanks'),
+          NavigationDestination(icon: Icon(Icons.insights_outlined), selectedIcon: Icon(Icons.insights), label: 'Usage'),
+          NavigationDestination(icon: Icon(Icons.notifications_outlined), selectedIcon: Icon(Icons.notifications), label: 'Alerts'),
+          NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
     );

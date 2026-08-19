@@ -1,13 +1,12 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
 import '../models/tank_model.dart';
 import '../services/firebase_service.dart';
 
-/// DashboardPage displays real-time tank data and allows pump control.
-class DashboardPage extends StatefulWidget 
-{
+class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key, required this.firebaseReady});
 
   final bool firebaseReady;
@@ -16,9 +15,7 @@ class DashboardPage extends StatefulWidget
   State<DashboardPage> createState() => _DashboardPageState();
 }
 
-/// _DashboardPageState manages the state of DashboardPage, including real-time data updates and pump control.
-class _DashboardPageState extends State<DashboardPage> 
-{
+class _DashboardPageState extends State<DashboardPage> with TickerProviderStateMixin {
   final FirebaseService _firebaseService = FirebaseService();
 
   TankModel _tank = const TankModel(
@@ -38,9 +35,28 @@ class _DashboardPageState extends State<DashboardPage>
   String? _error;
   DateTime? _lastUpdatedAt;
 
+  late final AnimationController _waveController;
+  late final AnimationController _pumpController;
+  late final AnimationController _fadeController;
+
   @override
   void initState() {
     super.initState();
+    _waveController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    )..repeat();
+
+    _pumpController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+
+    _fadeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    )..forward();
+
     _subscription = _firebaseService.getTankData().listen(
       (tank) {
         if (!mounted) {
@@ -53,6 +69,13 @@ class _DashboardPageState extends State<DashboardPage>
           _error = null;
           _lastUpdatedAt = DateTime.now();
         });
+
+        if (tank.pump) {
+          _pumpController.repeat(reverse: true);
+        } else {
+          _pumpController.stop();
+          _pumpController.value = 0;
+        }
       },
       onError: (Object _) {
         if (!mounted) {
@@ -70,6 +93,9 @@ class _DashboardPageState extends State<DashboardPage>
   @override
   void dispose() {
     _subscription?.cancel();
+    _waveController.dispose();
+    _pumpController.dispose();
+    _fadeController.dispose();
     super.dispose();
   }
 
@@ -221,23 +247,23 @@ class _DashboardPageState extends State<DashboardPage>
     return 'On monthly trend';
   }
 
-// The build method renders the UI based on the current state of the tank data, showing loading indicators, error messages, and the main dashboard when data is available.
   @override
-  Widget build(BuildContext context) 
-  {
-    if (_isLoading) 
-    {
-      return const Center(child: CircularProgressIndicator());
+  Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(color: Color(0xFF1565C0)),
+      );
     }
 
-    if (_error != null) 
-    {
+    if (_error != null) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              const Icon(Icons.cloud_off, size: 48, color: Colors.grey),
+              const SizedBox(height: 12),
               Text(_error!, textAlign: TextAlign.center),
               const SizedBox(height: 12),
               OutlinedButton.icon(
@@ -253,6 +279,7 @@ class _DashboardPageState extends State<DashboardPage>
 
     return RefreshIndicator(
       onRefresh: _refreshDashboard,
+      color: const Color(0xFF1565C0),
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -309,76 +336,64 @@ class _DashboardPageState extends State<DashboardPage>
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  _TankView(level: _tank.level),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Tank Overview',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            const Icon(Icons.info_outline, size: 16, color: Color(0xFF1565C0)),
-                            const SizedBox(width: 6),
-                            Expanded(child: Text('Current Status: ${_tank.status}')),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            const Icon(Icons.opacity, size: 16, color: Color(0xFF1565C0)),
-                            const SizedBox(width: 6),
-                            Expanded(child: Text('Water Level: ${_tank.level.toStringAsFixed(1)}%')),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            const Icon(Icons.power_settings_new, size: 16, color: Color(0xFF1565C0)),
-                            const SizedBox(width: 6),
-                            Expanded(child: Text('Pump: ${_tank.pump ? 'Running' : 'Stopped'}')),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          const SizedBox(height: 16),
+          // Animated Tank Visualization
+          _AnimatedTankCard(
+            level: _tank.level,
+            pump: _tank.pump,
+            waveController: _waveController,
+            pumpController: _pumpController,
+            fadeController: _fadeController,
           ),
           const SizedBox(height: 12),
+          // Tank Level Progress
           Card(
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Tank Level', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  Row(
+                    children: [
+                      const Text(
+                        'Tank Level',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      const Spacer(),
+                      Text(
+                        '${_tank.level.toStringAsFixed(1)}%',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w800,
+                          color: _levelColor(_tank.level),
+                        ),
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 10),
                   TweenAnimationBuilder<double>(
                     tween: Tween<double>(begin: 0, end: (_tank.level.clamp(0, 100)) / 100),
-                    duration: const Duration(milliseconds: 700),
+                    duration: const Duration(milliseconds: 800),
+                    curve: Curves.easeOutCubic,
                     builder: (context, animatedLevel, _) {
                       return LinearProgressIndicator(
                         value: animatedLevel,
                         minHeight: 16,
                         borderRadius: BorderRadius.circular(12),
                         color: _levelColor(_tank.level),
+                        backgroundColor: const Color(0xFFE3F2FD),
                       );
                     },
                   ),
                   const SizedBox(height: 8),
-                  Text('${_tank.level.toStringAsFixed(1)}%  •  ${_tank.status}'),
+                  Text(
+                    '${_tank.status}',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: _levelColor(_tank.level),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -388,7 +403,7 @@ class _DashboardPageState extends State<DashboardPage>
             children: [
               Expanded(
                 child: _MetricCard(
-                  title: 'Flow',
+                  title: 'Flow Rate',
                   value: '${_tank.flow.toStringAsFixed(1)} L/min',
                   icon: Icons.water_drop,
                   color: const Color(0xFF1565C0),
@@ -397,7 +412,7 @@ class _DashboardPageState extends State<DashboardPage>
               const SizedBox(width: 12),
               Expanded(
                 child: _MetricCard(
-                  title: 'Pump',
+                  title: 'Pump Status',
                   value: _tank.pump ? 'ON' : 'OFF',
                   icon: _tank.pump ? Icons.power : Icons.power_off,
                   color: _tank.pump ? const Color(0xFF1976D2) : const Color(0xFF607D8B),
@@ -461,19 +476,49 @@ class _DashboardPageState extends State<DashboardPage>
               ),
           ],
           const SizedBox(height: 16),
-          FilledButton.icon(
-            onPressed: _isTogglingPump ? null : _togglePump,
-            icon: _isTogglingPump
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : Icon(_tank.pump ? Icons.toggle_off : Icons.toggle_on),
-            label: Text(
-              _isTogglingPump
-                  ? 'Updating Pump...'
-                  : (_tank.pump ? 'Turn Off Pump' : 'Turn On Pump'),
+          // Animated Pump Button
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: (_tank.pump ? const Color(0xFF1565C0) : const Color(0xFF607D8B))
+                      .withValues(alpha: 0.3),
+                  blurRadius: 12,
+                  spreadRadius: 2,
+                ),
+              ],
+            ),
+            child: FilledButton.icon(
+              onPressed: _isTogglingPump ? null : _togglePump,
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 18),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                backgroundColor: _tank.pump ? const Color(0xFFE53935) : const Color(0xFF1565C0),
+              ),
+              icon: _isTogglingPump
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                    )
+                  : AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      child: Icon(
+                        _tank.pump ? Icons.power_settings_new : Icons.play_arrow,
+                        key: ValueKey(_tank.pump),
+                        color: Colors.white,
+                      ),
+                    ),
+              label: Text(
+                _isTogglingPump
+                    ? 'Updating Pump...'
+                    : (_tank.pump ? 'Turn Off Pump' : 'Turn On Pump'),
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              ),
             ),
           ),
           const SizedBox(height: 12),
@@ -507,11 +552,21 @@ class _DashboardPageState extends State<DashboardPage>
   }
 }
 
-/// _TankView is a custom widget that visually represents the tank's water level with a fill animation and color coding.
-class _TankView extends StatelessWidget {
-  const _TankView({required this.level});
+/// Animated tank visualization with water waves
+class _AnimatedTankCard extends StatelessWidget {
+  const _AnimatedTankCard({
+    required this.level,
+    required this.pump,
+    required this.waveController,
+    required this.pumpController,
+    required this.fadeController,
+  });
 
   final double level;
+  final bool pump;
+  final AnimationController waveController;
+  final AnimationController pumpController;
+  final AnimationController fadeController;
 
   @override
   Widget build(BuildContext context) {
@@ -522,41 +577,242 @@ class _TankView extends StatelessWidget {
             ? const Color(0xFF1E88E5)
             : const Color(0xFF64B5F6);
 
-    return SizedBox(
-      width: 86,
-      height: 140,
-      child: Stack(
-        alignment: Alignment.bottomCenter,
-        children: [
-          Container(
-            width: 78,
-            height: 132,
-            decoration: BoxDecoration(
-              color: const Color(0xFFE3F2FD),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: const Color(0xFF1565C0), width: 2),
-            ),
-          ),
-          Container(
-            width: 78,
-            height: 132 * normalized,
-            decoration: BoxDecoration(
-              color: fillColor,
-              borderRadius: BorderRadius.vertical(
-                bottom: const Radius.circular(12),
-                top: Radius.circular(normalized > 0.95 ? 12 : 6),
+    return FadeTransition(
+      opacity: fadeController,
+      child: Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Row(
+            children: [
+              // Tank visualization
+              SizedBox(
+                width: 110,
+                height: 170,
+                child: Stack(
+                  alignment: Alignment.bottomCenter,
+                  children: [
+                    // Tank body
+                    Container(
+                      width: 100,
+                      height: 160,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE3F2FD),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFF1565C0), width: 3),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF1565C0).withValues(alpha: 0.2),
+                            blurRadius: 10,
+                            spreadRadius: 2,
+                          ),
+                        ],
+                      ),
+                    ),
+                    // Water fill with wave animation
+                    ClipRRect(
+                      borderRadius: const BorderRadius.vertical(
+                        bottom: Radius.circular(13),
+                        top: Radius.circular(6),
+                      ),
+                      child: AnimatedBuilder(
+                        animation: waveController,
+                        builder: (context, child) {
+                          return Container(
+                            width: 100,
+                            height: 160 * normalized,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  fillColor.withValues(alpha: 0.8),
+                                  fillColor,
+                                ],
+                              ),
+                            ),
+                            child: CustomPaint(
+                              painter: _WavePainter(
+                                color: Colors.white.withValues(alpha: 0.3),
+                                waveOffset: waveController.value * 2 * math.pi,
+                                amplitude: pump ? 4.0 : 2.0,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    // Level text
+                    Positioned(
+                      top: 8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.9),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          '${level.toStringAsFixed(0)}%',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF0D47A1),
+                          ),
+                        ),
+                      ),
+                    ),
+                    // Pump indicator
+                    if (pump)
+                      Positioned(
+                        bottom: 8,
+                        child: ScaleTransition(
+                          scale: Tween<double>(begin: 0.8, end: 1.2).animate(
+                            CurvedAnimation(
+                              parent: pumpController,
+                              curve: Curves.easeInOut,
+                            ),
+                          ),
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.9),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.power,
+                              size: 16,
+                              color: Color(0xFF1565C0),
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               ),
-            ),
+              const SizedBox(width: 20),
+              // Tank info
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Main Tank',
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Rooftop • Block A',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    _InfoRow(
+                      icon: Icons.water_drop,
+                      label: 'Water Level',
+                      value: '${level.toStringAsFixed(1)}%',
+                      color: fillColor,
+                    ),
+                    const SizedBox(height: 8),
+                    _InfoRow(
+                      icon: Icons.speed,
+                      label: 'Status',
+                      value: level >= 80
+                          ? 'Full'
+                          : level <= 30
+                              ? 'Low'
+                              : 'Normal',
+                      color: fillColor,
+                    ),
+                    const SizedBox(height: 8),
+                    _InfoRow(
+                      icon: Icons.power_settings_new,
+                      label: 'Pump',
+                      value: pump ? 'Running' : 'Stopped',
+                      color: pump ? const Color(0xFF1565C0) : const Color(0xFF607D8B),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          Positioned(
-            top: 6,
-            child: Text(
-              '${level.toStringAsFixed(0)}%',
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0D47A1)),
-            ),
-          ),
-        ],
+        ),
       ),
+    );
+  }
+}
+
+class _WavePainter extends CustomPainter {
+  const _WavePainter({
+    required this.color,
+    required this.waveOffset,
+    required this.amplitude,
+  });
+
+  final Color color;
+  final double waveOffset;
+  final double amplitude;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    final path = Path();
+    path.moveTo(0, size.height);
+
+    for (double x = 0; x <= size.width; x += 2) {
+      final y = size.height * 0.3 + math.sin((x / size.width) * 2 * math.pi + waveOffset) * amplitude;
+      path.lineTo(x, y);
+    }
+
+    path.lineTo(size.width, size.height);
+    path.close();
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _WavePainter oldDelegate) {
+    return oldDelegate.waveOffset != waveOffset ||
+        oldDelegate.color != color ||
+        oldDelegate.amplitude != amplitude;
+  }
+}
+
+class _InfoRow extends StatelessWidget {
+  const _InfoRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(icon, size: 18, color: color),
+        const SizedBox(width: 8),
+        Text(
+          label,
+          style: const TextStyle(fontSize: 13, color: Colors.black54),
+        ),
+        const Spacer(),
+        Text(
+          value,
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+        ),
+      ],
     );
   }
 }
@@ -574,20 +830,33 @@ class _MetricCard extends StatelessWidget {
   final IconData icon;
   final Color color;
 
-// _MetricCard is a reusable widget that displays a metric with an icon, title, and value in a styled card format.
   @override
   Widget build(BuildContext context) {
     return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, color: color),
-            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(icon, color: color, size: 22),
+            ),
+            const SizedBox(height: 10),
             Text(title, style: const TextStyle(fontSize: 13, color: Colors.black54)),
             const SizedBox(height: 6),
-            Text(value, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
+            Text(
+              value,
+              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+            ),
           ],
         ),
       ),
@@ -607,9 +876,9 @@ class _StatusChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
+        color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: color.withOpacity(0.35)),
+        border: Border.all(color: color.withValues(alpha: 0.35)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -636,7 +905,10 @@ class _AlertTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: color.withOpacity(0.1),
+      color: color.withValues(alpha: 0.1),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: ListTile(
         leading: Icon(Icons.warning_amber_rounded, color: color),
         title: Text(title),

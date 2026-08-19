@@ -6,19 +6,12 @@ import 'package:flutter/foundation.dart';
 import '../models/app_user.dart';
 
 class AuthService {
-  AuthService._internal() {
-    // Demo credentials for offline/testing fallback
-    _demoCredentials['demo@tankmaster.com'] = 'demo1234';
-    _demoNames['demo@tankmaster.com'] = 'Demo User';
-  }
+  AuthService._internal();
 
   static final AuthService instance = AuthService._internal();
 
   FirebaseAuth? _auth;
   bool _firebaseAvailable = false;
-
-  final Map<String, String> _demoCredentials = <String, String>{};
-  final Map<String, String> _demoNames = <String, String>{};
 
   final StreamController<AppUser?> _authController = StreamController<AppUser?>.broadcast();
 
@@ -74,21 +67,7 @@ class AuthService {
       }
     }
 
-    // Fallback to demo mode
-    if (_demoCredentials.containsKey(normalizedEmail)) {
-      return 'Account already exists for this email';
-    }
-
-    if (password.length < 6) {
-      return 'Password must be at least 6 characters';
-    }
-
-    _demoCredentials[normalizedEmail] = password;
-    _demoNames[normalizedEmail] = name.trim();
-
-    _currentUser = AppUser(name: name.trim(), email: normalizedEmail);
-    _authController.add(_currentUser);
-    return null;
+    return 'Authentication is unavailable. Please check your connection.';
   }
 
   /// Log in an existing user with Firebase Authentication (falls back to demo if Firebase unavailable)
@@ -113,16 +92,6 @@ class AuthService {
         return null;
       } on FirebaseAuthException catch (e) {
         debugPrint('Firebase login error: ${e.code} - ${e.message}');
-        // If Firebase auth fails, fall back to demo credentials
-        final demoPassword = _demoCredentials[normalizedEmail];
-        if (demoPassword != null && demoPassword == password) {
-          _currentUser = AppUser(
-            name: _demoNames[normalizedEmail] ?? 'User',
-            email: normalizedEmail,
-          );
-          _authController.add(_currentUser);
-          return null;
-        }
         return _mapAuthError(e);
       } catch (e) {
         debugPrint('Login error: $e');
@@ -130,18 +99,7 @@ class AuthService {
       }
     }
 
-    // Fallback to demo mode
-    final storedPassword = _demoCredentials[normalizedEmail];
-    if (storedPassword == null || storedPassword != password) {
-      return 'Invalid email or password';
-    }
-
-    _currentUser = AppUser(
-      name: _demoNames[normalizedEmail] ?? 'User',
-      email: normalizedEmail,
-    );
-    _authController.add(_currentUser);
-    return null;
+    return 'Authentication is unavailable. Please check your connection.';
   }
 
   /// Log out the current user

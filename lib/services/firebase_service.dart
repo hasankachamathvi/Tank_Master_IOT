@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 
@@ -37,25 +39,36 @@ class FirebaseService {
       return Stream.value(_fallbackTank);
     }
 
-    return db.child('tank').onValue.map((event) {
-      final raw = event.snapshot.value;
+    return db.child('tank').onValue
+        .timeout(
+          const Duration(seconds: 5),
+          onTimeout: (sink) {
+            debugPrint('Database timeout, using fallback data');
+            sink.addError(TimeoutException('Database timeout'));
+          },
+        )
+        .map((event) {
+          final raw = event.snapshot.value;
 
-      if (raw is Map) {
-        try {
-          return TankModel.fromMap(raw.cast<String, dynamic>());
-        } catch (e) {
-          debugPrint('Error parsing tank data: $e');
+          if (raw is Map) {
+            try {
+              return TankModel.fromMap(raw.cast<String, dynamic>());
+            } catch (e) {
+              debugPrint('Error parsing tank data: $e');
+              return _fallbackTank;
+            }
+          }
+
           return _fallbackTank;
-        }
-      }
-
-      return _fallbackTank;
-    }).handleError(
-      (error) {
-        debugPrint('Stream error: $error');
-        return _fallbackTank;
-      },
-    );
+        })
+        .transform(
+          StreamTransformer.fromHandlers(
+            handleError: (error, stackTrace, sink) {
+              debugPrint('Stream error caught, using fallback: $error');
+              sink.add(_fallbackTank);
+            },
+          ),
+        );
   }
 
   /// Update pump status

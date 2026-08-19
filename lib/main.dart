@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
+import 'firebase_options.dart';
 import 'models/app_user.dart';
 import 'screens/app_shell.dart';
 import 'screens/login_screen.dart';
@@ -14,7 +15,9 @@ Future<void> main() async {
   bool firebaseReady = false;
 
   try {
-    await Firebase.initializeApp();
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
     firebaseReady = true;
     debugPrint('Firebase initialized successfully');
   } catch (error) {

@@ -16,6 +16,11 @@ class UsagePage extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       children: [
         const Text('Usage Summary', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 4),
+        Text(
+          'Track your water consumption',
+          style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+        ),
         const SizedBox(height: 12),
         Row(
           children: const [
@@ -40,6 +45,8 @@ class UsagePage extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         Card(
+          elevation: 2,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -62,24 +69,44 @@ class UsagePage extends StatelessWidget {
           final percent = (value / maxValue).clamp(0.0, 1.0).toDouble();
 
           return Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
             child: Padding(
               padding: const EdgeInsets.all(12),
               child: Column(
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.bar_chart, color: Color(0xFF1565C0)),
+                      Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE3F2FD),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(Icons.bar_chart, color: Color(0xFF1565C0), size: 18),
+                      ),
                       const SizedBox(width: 8),
                       Expanded(child: Text(label)),
-                      Text('${value.toStringAsFixed(1)} L'),
+                      Text(
+                        '${value.toStringAsFixed(1)} L',
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 10),
-                  LinearProgressIndicator(
-                    value: percent,
-                    minHeight: 10,
-                    borderRadius: BorderRadius.circular(8),
-                    color: const Color(0xFF1E88E5),
+                  TweenAnimationBuilder<double>(
+                    tween: Tween<double>(begin: 0, end: percent),
+                    duration: const Duration(milliseconds: 800),
+                    curve: Curves.easeOutCubic,
+                    builder: (context, animatedPercent, _) {
+                      return LinearProgressIndicator(
+                        value: animatedPercent,
+                        minHeight: 10,
+                        borderRadius: BorderRadius.circular(8),
+                        color: const Color(0xFF1E88E5),
+                        backgroundColor: const Color(0xFFE3F2FD),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -87,15 +114,23 @@ class UsagePage extends StatelessWidget {
           );
         }),
         const SizedBox(height: 12),
-        const Card(
+        Card(
+          elevation: 2,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
           child: Padding(
-            padding: EdgeInsets.all(14),
+            padding: const EdgeInsets.all(14),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Tip', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
-                SizedBox(height: 6),
-                Text('Run the pump during low-demand hours to reduce overflow risk and energy usage.'),
+                const Row(
+                  children: [
+                    Icon(Icons.lightbulb_outline, color: Color(0xFFFB8C00), size: 20),
+                    SizedBox(width: 8),
+                    Text('Tip', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                const Text('Run the pump during low-demand hours to reduce overflow risk and energy usage.'),
               ],
             ),
           ),
@@ -121,12 +156,21 @@ class _HighlightCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, color: color),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(icon, color: color, size: 20),
+            ),
             const SizedBox(height: 8),
             Text(title, style: const TextStyle(fontSize: 13, color: Colors.black54)),
             const SizedBox(height: 4),

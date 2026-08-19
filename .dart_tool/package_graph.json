@@ -10,7 +10,8 @@
         "firebase_auth",
         "firebase_core",
         "firebase_database",
-        "flutter"
+        "flutter",
+        "js"
       ],
       "devDependencies": [
         "flutter_lints",
@@ -41,6 +42,11 @@
         "test_api",
         "vector_math"
       ]
+    },
+    {
+      "name": "js",
+      "version": "0.7.2",
+      "dependencies": []
     },
     {
       "name": "firebase_auth",
@@ -189,7 +195,7 @@
     },
     {
       "name": "firebase_auth_web",
-      "version": "5.8.13",
+      "version": "5.12.0",
       "dependencies": [
         "firebase_auth_platform_interface",
         "firebase_core",
@@ -197,8 +203,8 @@
         "flutter",
         "flutter_web_plugins",
         "http_parser",
-        "js",
-        "meta"
+        "meta",
+        "web"
       ]
     },
     {
@@ -238,7 +244,7 @@
     },
     {
       "name": "firebase_core_web",
-      "version": "2.24.0",
+      "version": "2.17.5",
       "dependencies": [
         "firebase_core_platform_interface",
         "flutter",
@@ -329,11 +335,9 @@
       ]
     },
     {
-      "name": "js",
-      "version": "0.6.7",
-      "dependencies": [
-        "meta"
-      ]
+      "name": "web",
+      "version": "0.5.1",
+      "dependencies": []
     },
     {
       "name": "http_parser",
@@ -362,11 +366,6 @@
         "flutter",
         "meta"
       ]
-    },
-    {
-      "name": "web",
-      "version": "1.1.1",
-      "dependencies": []
     },
     {
       "name": "vm_service",
