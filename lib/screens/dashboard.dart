@@ -512,7 +512,8 @@ class _AlertTile extends StatelessWidget
   @override
   Widget build(BuildContext context) 
   {
-    return Card(
+    return Card
+    (
       color: color.withOpacity(0.1),
       child: ListTile(
         leading: Icon(Icons.warning_amber_rounded, color: color),

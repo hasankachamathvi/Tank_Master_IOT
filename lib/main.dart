@@ -16,8 +16,11 @@ Future<void> main() async {
   try {
     await Firebase.initializeApp();
     firebaseReady = true;
+    debugPrint('Firebase initialized successfully');
   } catch (error) {
     debugPrint('Firebase init failed: $error');
+    // If Firebase fails to initialize (e.g., missing google-services.json),
+    // the app will still run but show a warning banner.
   }
 
   ErrorWidget.builder = (FlutterErrorDetails details) {

@@ -1,17 +1,16 @@
 import 'dart:async';
 
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
+
 import '../models/app_user.dart';
 
 class AuthService {
-  AuthService._internal() {
-    _credentials['demo@tankmaster.com'] = 'demo1234';
-    _names['demo@tankmaster.com'] = 'Demo User';
-  }
+  AuthService._internal();
 
   static final AuthService instance = AuthService._internal();
 
-  final Map<String, String> _credentials = <String, String>{};
-  final Map<String, String> _names = <String, String>{};
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   final StreamController<AppUser?> _authController = StreamController<AppUser?>.broadcast();
 
@@ -24,44 +23,84 @@ class AuthService {
     yield* _authController.stream;
   }
 
+  /// Register a new user with Firebase Authentication
   Future<String?> register({required String name, required String email, required String password}) async {
-    final normalizedEmail = email.trim().toLowerCase();
+    try {
+      final userCredential = await _auth.createUserWithEmailAndPassword(
+        email: email.trim(),
+        password: password,
+      );
 
-    if (_credentials.containsKey(normalizedEmail)) {
-      return 'Account already exists for this email';
+      // Store the display name
+      await userCredential.user?.updateDisplayName(name.trim());
+
+      _currentUser = AppUser(name: name.trim(), email: email.trim().toLowerCase());
+      _authController.add(_currentUser);
+      return null;
+    } on FirebaseAuthException catch (e) {
+      debugPrint('Firebase register error: ${e.code} - ${e.message}');
+      return _mapAuthError(e);
+    } catch (e) {
+      debugPrint('Register error: $e');
+      return 'Registration failed. Please try again.';
     }
-
-    if (password.length < 6) {
-      return 'Password must be at least 6 characters';
-    }
-
-    _credentials[normalizedEmail] = password;
-    _names[normalizedEmail] = name.trim();
-
-    _currentUser = AppUser(name: name.trim(), email: normalizedEmail);
-    _authController.add(_currentUser);
-    return null;
   }
 
+  /// Log in an existing user with Firebase Authentication
   Future<String?> login({required String email, required String password}) async {
-    final normalizedEmail = email.trim().toLowerCase();
-    final storedPassword = _credentials[normalizedEmail];
+    try {
+      final userCredential = await _auth.signInWithEmailAndPassword(
+        email: email.trim(),
+        password: password,
+      );
 
-    if (storedPassword == null || storedPassword != password) {
-      return 'Invalid email or password';
+      final user = userCredential.user;
+      _currentUser = AppUser(
+        name: user?.displayName ?? 'User',
+        email: user?.email ?? email.trim().toLowerCase(),
+      );
+      _authController.add(_currentUser);
+      return null;
+    } on FirebaseAuthException catch (e) {
+      debugPrint('Firebase login error: ${e.code} - ${e.message}');
+      return _mapAuthError(e);
+    } catch (e) {
+      debugPrint('Login error: $e');
+      return 'Login failed. Please try again.';
     }
-
-    _currentUser = AppUser(
-      name: _names[normalizedEmail] ?? 'User',
-      email: normalizedEmail,
-    );
-
-    _authController.add(_currentUser);
-    return null;
   }
 
+  /// Log out the current user
   Future<void> logout() async {
+    try {
+      await _auth.signOut();
+    } catch (e) {
+      debugPrint('Logout error: $e');
+    }
     _currentUser = null;
     _authController.add(null);
+  }
+
+  /// Map Firebase Auth exceptions to user-friendly messages
+  String _mapAuthError(FirebaseAuthException e) {
+    switch (e.code) {
+      case 'email-already-in-use':
+        return 'An account already exists for this email';
+      case 'invalid-email':
+        return 'The email address is not valid';
+      case 'weak-password':
+        return 'Password must be at least 6 characters';
+      case 'user-not-found':
+      case 'invalid-credential':
+        return 'Invalid email or password';
+      case 'wrong-password':
+        return 'Incorrect password';
+      case 'too-many-requests':
+        return 'Too many attempts. Please try again later.';
+      case 'network-request-failed':
+        return 'Network error. Check your internet connection.';
+      default:
+        return e.message ?? 'Authentication failed. Please try again.';
+    }
   }
 }

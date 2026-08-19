@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1050392308457",
+    "project_id": "tankmaster-a0155",
+    "storage_bucket": "tankmaster-a0155.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1050392308457:android:901b45a29139c236e55e78",
+        "android_client_info": {
+          "package_name": "com.example.tank_master"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBrQyDO1z2xNefx-cEP3RwyphGk3BuM-68"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
