@@ -104,6 +104,20 @@ class FirebaseService {
     }
   }
 
+  /// Update flow rate
+  Future<void> updateFlow(double flow) async {
+    final db = _safeDbRef();
+
+    if (db == null) return;
+
+    try {
+      await db.child('tank').update({'flow': flow});
+    } catch (e) {
+      debugPrint('Error updating flow: $e');
+      rethrow;
+    }
+  }
+
   /// Update daily usage
   Future<void> updateDailyUsage(double usage) async {
     final db = _safeDbRef();
@@ -142,6 +156,20 @@ class FirebaseService {
       await db.child('tank').update({'overflowAlert': alert});
     } catch (e) {
       debugPrint('Error setting overflow alert: $e');
+      rethrow;
+    }
+  }
+
+  /// Update monthly usage
+  Future<void> updateMonthlyUsage(double usage) async {
+    final db = _safeDbRef();
+
+    if (db == null) return;
+
+    try {
+      await db.child('tank').update({'monthlyUsage': usage});
+    } catch (e) {
+      debugPrint('Error updating monthly usage: $e');
       rethrow;
     }
   }
