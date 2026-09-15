@@ -53,13 +53,82 @@ class _AlertsPageState extends State<AlertsPage> {
                     : () => setState(() => _read.addAll([0, 1, 2])),
                 child: const Text('Mark all read')),
           ]),
-          Wrap(spacing: 8, children: [
-            for (final filter in ['All', 'Unread'])
-              ChoiceChip(
-                  label: Text(filter),
-                  selected: filter == _filter,
-                  onSelected: (_) => setState(() => _filter = filter))
-          ]),
+          Container(
+            padding: const EdgeInsets.all(5),
+            decoration: BoxDecoration(
+              color: const Color(0xFFDCEBFF),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: const Color(0xFFBAD3F5)),
+            ),
+            child: Row(children: [
+              for (final filter in ['All', 'Unread'])
+                Expanded(
+                    child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 2),
+                  child: Semantics(
+                    selected: filter == _filter,
+                    child: AnimatedContainer(
+                      duration: MediaQuery.disableAnimationsOf(context)
+                          ? Duration.zero
+                          : const Duration(milliseconds: 220),
+                      curve: Curves.easeOutCubic,
+                      decoration: BoxDecoration(
+                        color: filter == _filter
+                            ? AppColors.blue
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(15),
+                        boxShadow: filter == _filter
+                            ? [
+                                BoxShadow(
+                                    color:
+                                        AppColors.blue.withValues(alpha: 0.24),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 3)),
+                              ]
+                            : [],
+                      ),
+                      child: TextButton(
+                        onPressed: () => setState(() => _filter = filter),
+                        style: TextButton.styleFrom(
+                          foregroundColor: filter == _filter
+                              ? Colors.white
+                              : const Color(0xFF345783),
+                          minimumSize: const Size(0, 48),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15)),
+                        ),
+                        child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Flexible(
+                                  child: Text(filter,
+                                      style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w700))),
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 7, vertical: 2),
+                                decoration: BoxDecoration(
+                                    color: filter == _filter
+                                        ? Colors.white.withValues(alpha: 0.2)
+                                        : const Color(0xFFC4DAF7),
+                                    borderRadius: BorderRadius.circular(8)),
+                                child: Text(
+                                    '${filter == 'All' ? 3 : 3 - _read.length}',
+                                    style: const TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w800)),
+                              ),
+                            ]),
+                      ),
+                    ),
+                  ),
+                )),
+            ]),
+          ),
           const SizedBox(height: 16),
           if (visible.isEmpty)
             const Padding(
