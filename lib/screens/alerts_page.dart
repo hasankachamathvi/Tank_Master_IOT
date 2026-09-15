@@ -1,151 +1,167 @@
 import 'package:flutter/material.dart';
+import '../widgets/mobile_ui.dart';
 
-class AlertsPage extends StatelessWidget {
+class AlertsPage extends StatefulWidget {
   const AlertsPage({super.key});
-
   @override
-  Widget build(BuildContext context) {
-    const alerts = <Map<String, Object>>[
-      {
-        'title': 'Low Water Level',
-        'message': 'Tank dropped below 20%. Consider starting the pump.',
-        'color': Colors.orange,
-        'time': '2 min ago',
-      },
-      {
-        'title': 'High Consumption Spike',
-        'message': 'Usage increased by 18% compared to last week.',
-        'color': Colors.red,
-        'time': '1 hr ago',
-      },
-      {
-        'title': 'Pump Health',
-        'message': 'Pump runtime remains within normal range.',
-        'color': Colors.green,
-        'time': '3 hrs ago',
-      },
-    ];
-
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
-      children: [
-        const Text('Alerts and Notifications',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 4),
-        Text(
-          'Sample notification history • Demo',
-          style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: const [
-            Expanded(
-                child: _AlertSummaryCard(
-                    label: 'Critical', count: '1', color: Color(0xFFE53935))),
-            SizedBox(width: 12),
-            Expanded(
-                child: _AlertSummaryCard(
-                    label: 'Warnings', count: '1', color: Color(0xFFFB8C00))),
-            SizedBox(width: 12),
-            Expanded(
-                child: _AlertSummaryCard(
-                    label: 'Resolved', count: '1', color: Color(0xFF43A047))),
-          ],
-        ),
-        const SizedBox(height: 12),
-        ...alerts.map((item) {
-          final color = item['color']! as Color;
-          return Card(
-            margin: const EdgeInsets.only(bottom: 12),
-            elevation: 0,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(14),
-                border: Border(left: BorderSide(color: color, width: 5)),
-              ),
-              child: ListTile(
-                leading: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(Icons.notifications_active, color: color),
-                ),
-                title: Text(item['title']! as String),
-                subtitle: Text(item['message']! as String),
-                trailing: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      item['time']! as String,
-                      style:
-                          TextStyle(fontSize: 11, color: Colors.grey.shade500),
-                    ),
-                    TextButton(onPressed: () {}, child: const Text('View')),
-                  ],
-                ),
-              ),
-            ),
-          );
-        }),
-        const SizedBox(height: 12),
-        Card(
-          elevation: 0,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-          child: ListTile(
-            leading: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: const Color(0xFFE3F2FD),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Icon(Icons.settings_input_component,
-                  color: Color(0xFF1565C0)),
-            ),
-            title: const Text('Notification Rule'),
-            subtitle: const Text(
-                'Send push notification when level is below 20% for 5 minutes.'),
-            trailing: const Icon(Icons.chevron_right),
-          ),
-        ),
-      ],
-    );
-  }
+  State<AlertsPage> createState() => _AlertsPageState();
 }
 
-class _AlertSummaryCard extends StatelessWidget {
-  const _AlertSummaryCard(
-      {required this.label, required this.count, required this.color});
-
-  final String label;
-  final String count;
-  final Color color;
-
+class _AlertsPageState extends State<AlertsPage> {
+  String _filter = 'All';
+  final Set<int> _read = {};
+  static const _titles = [
+    'Low water level',
+    'A busy water day',
+    'Pump looking good'
+  ];
+  static const _messages = [
+    'The sample backup tank fell below 20%. Check its supply before starting a refill.',
+    'Sample consumption increased by 18% compared with the previous week.',
+    'The sample pump runtime is within its normal range.'
+  ];
+  static const _colors = [AppColors.coral, AppColors.violet, AppColors.mint];
+  static const _icons = [
+    Icons.water_drop_outlined,
+    Icons.trending_up,
+    Icons.check_circle_outline
+  ];
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
-        child: Column(
-          children: [
-            Text(
-              count,
-              style: TextStyle(
-                  fontSize: 22, fontWeight: FontWeight.w800, color: color),
-            ),
-            const SizedBox(height: 4),
-            Text(label,
-                style: const TextStyle(fontSize: 12, color: Colors.black54)),
-          ],
-        ),
-      ),
-    );
+    final visible = [
+      for (var i = 0; i < 3; i++)
+        if (_filter != 'Unread' || !_read.contains(i)) i
+    ];
+    return ListView(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+        children: [
+          const PageIntro(
+              title: 'A heads-up.\nPeace of mind.',
+              subtitle: 'Your sample notification history, in one place.',
+              icon: Icons.notifications_active_outlined,
+              color: AppColors.coral,
+              eyebrow: 'NOTIFICATIONS'),
+          const SizedBox(height: 20),
+          Row(children: [
+            Expanded(
+                child: Text('${3 - _read.length} unread',
+                    style: const TextStyle(
+                        fontSize: 19, fontWeight: FontWeight.w800))),
+            TextButton(
+                onPressed: _read.length == 3
+                    ? null
+                    : () => setState(() => _read.addAll([0, 1, 2])),
+                child: const Text('Mark all read')),
+          ]),
+          Wrap(spacing: 8, children: [
+            for (final filter in ['All', 'Unread'])
+              ChoiceChip(
+                  label: Text(filter),
+                  selected: filter == _filter,
+                  onSelected: (_) => setState(() => _filter = filter))
+          ]),
+          const SizedBox(height: 16),
+          if (visible.isEmpty)
+            const Padding(
+                padding: EdgeInsets.symmetric(vertical: 40),
+                child: Column(children: [
+                  Icon(Icons.done_all, color: AppColors.mint, size: 48),
+                  SizedBox(height: 12),
+                  Text('All caught up!',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.w800))
+                ])),
+          for (final i in visible)
+            Padding(
+                padding: const EdgeInsets.only(bottom: 14),
+                child: Card(
+                    child: InkWell(
+                        borderRadius: BorderRadius.circular(24),
+                        onTap: () {
+                          setState(() => _read.add(i));
+                          showModalBottomSheet<void>(
+                              context: context,
+                              showDragHandle: true,
+                              isScrollControlled: true,
+                              builder: (context) => SafeArea(
+                                  child: Padding(
+                                      padding: const EdgeInsets.fromLTRB(
+                                          24, 8, 24, 32),
+                                      child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Icon(_icons[i],
+                                                color: _colors[i], size: 38),
+                                            const SizedBox(height: 16),
+                                            Text(_titles[i],
+                                                style: const TextStyle(
+                                                    fontSize: 24,
+                                                    fontWeight:
+                                                        FontWeight.w800)),
+                                            const SizedBox(height: 12),
+                                            Text(_messages[i],
+                                                style: const TextStyle(
+                                                    height: 1.6)),
+                                            const SizedBox(height: 20),
+                                            FilledButton(
+                                                onPressed: () =>
+                                                    Navigator.pop(context),
+                                                child: const Text('Got it')),
+                                          ]))));
+                        },
+                        child: Padding(
+                            padding: const EdgeInsets.all(18),
+                            child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(children: [
+                                    Container(
+                                        padding: const EdgeInsets.all(10),
+                                        decoration: BoxDecoration(
+                                            color: _colors[i]
+                                                .withValues(alpha: 0.12),
+                                            borderRadius:
+                                                BorderRadius.circular(14)),
+                                        child:
+                                            Icon(_icons[i], color: _colors[i])),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                        child: Text(
+                                            i == 0
+                                                ? '2 min ago'
+                                                : i == 1
+                                                    ? '1 hour ago'
+                                                    : '3 hours ago',
+                                            style: const TextStyle(
+                                                fontSize: 12,
+                                                color: Color(0xFF6D8190)))),
+                                    if (!_read.contains(i))
+                                      Container(
+                                          width: 8,
+                                          height: 8,
+                                          decoration: BoxDecoration(
+                                              color: _colors[i],
+                                              shape: BoxShape.circle)),
+                                  ]),
+                                  const SizedBox(height: 14),
+                                  Text(_titles[i],
+                                      style: const TextStyle(
+                                          fontSize: 17,
+                                          fontWeight: FontWeight.w800)),
+                                  const SizedBox(height: 6),
+                                  Text(_messages[i],
+                                      style: const TextStyle(
+                                          color: Color(0xFF6D8190),
+                                          height: 1.5)),
+                                  const SizedBox(height: 12),
+                                  Text('View notification',
+                                      style: TextStyle(
+                                          color: _colors[i],
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w700)),
+                                ])))))
+        ]);
   }
 }

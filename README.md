@@ -72,3 +72,13 @@ To connect the dashboard to Firebase instead:
 ```powershell
 flutter run --dart-define=DEMO_MODE=false
 ```
+
+## Mobile interface
+- Phone-first layout with safe areas, persistent bottom tabs, and animated selection.
+- Shared animated circular tank on Home, tank cards, and tank details.
+- Aqua water screens, violet usage charts, coral notifications, and mint profile settings.
+- Week/month usage switch and local read/unread notification controls.
+- Profile preferences are local previews; they do not configure notifications or automation.
+- Login and registration support scrolling while the phone keyboard is open.
+
+Run `flutter test` for phone layouts, larger text, keyboard and navigation checks.

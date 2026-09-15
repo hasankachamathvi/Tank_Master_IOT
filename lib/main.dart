@@ -57,27 +57,39 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF087F8C)),
-        scaffoldBackgroundColor: const Color(0xFFF3F7FA),
+        scaffoldBackgroundColor: const Color(0xFFB7D7FF),
         appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFF1565C0),
-          foregroundColor: Colors.white,
-          centerTitle: true,
+          backgroundColor: Color(0xFF91BCFF),
+          foregroundColor: Color(0xFF16364B),
+          centerTitle: false,
+          elevation: 0,
         ),
         cardTheme: const CardThemeData(
           elevation: 0,
-          color: Colors.white,
+          color: Color(0xFFF0F7FF),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(20)),
-            side: BorderSide(color: Color(0xFFE2EAF0)),
+            borderRadius: BorderRadius.all(Radius.circular(24)),
+            side: BorderSide(color: Color(0xFFD3E5FC)),
           ),
           margin: EdgeInsets.zero,
         ),
         filledButtonTheme: FilledButtonThemeData(
           style: FilledButton.styleFrom(
-            backgroundColor: const Color(0xFF1565C0),
+            backgroundColor: const Color(0xFF079BA5),
             foregroundColor: Colors.white,
           ),
         ),
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: const Color(0xFFF5F8FC),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+        ),
+        bottomSheetTheme: const BottomSheetThemeData(
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(28)))),
         useMaterial3: true,
       ),
       home: AppRoot(firebaseReady: firebaseReady),

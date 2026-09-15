@@ -7,32 +7,70 @@ class WaterGauge extends StatefulWidget {
   @override
   State<WaterGauge> createState() => _WaterGaugeState();
 }
-class _WaterGaugeState extends State<WaterGauge> with SingleTickerProviderStateMixin {
-  late final AnimationController _wave = AnimationController(vsync: this, duration: const Duration(seconds: 3));
+
+class _WaterGaugeState extends State<WaterGauge>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _wave =
+      AnimationController(vsync: this, duration: const Duration(seconds: 3));
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (MediaQuery.disableAnimationsOf(context)) { _wave.stop(); } else { _wave.repeat(); }
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _wave.stop();
+    } else {
+      _wave.repeat();
+    }
   }
+
   @override
-  void dispose() { _wave.dispose(); super.dispose(); }
+  void dispose() {
+    _wave.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) => Semantics(
-    label: 'Water level ${widget.level.toStringAsFixed(0)} percent',
-    child: SizedBox(width: widget.size, height: widget.size,
-      child: TweenAnimationBuilder<double>(
-        tween: Tween(begin: 0, end: widget.level),
-        duration: MediaQuery.disableAnimationsOf(context) ? Duration.zero : const Duration(milliseconds: 900),
-        curve: Curves.easeOutCubic,
-        builder: (context, level, _) => AnimatedBuilder(animation: _wave, builder: (context, _) =>
-          CustomPaint(painter: _WaterGaugePainter(level, _wave.value,
-            level <= 30 ? const Color(0xFFE6A044) : const Color(0xFF079BA5)),
-            child: Center(child: FittedBox(fit: BoxFit.scaleDown, child: Padding(
-              padding: const EdgeInsets.all(22),
-              child: Column(mainAxisSize: MainAxisSize.min, children: [
-                Text('${level.toStringAsFixed(0)}%', style: TextStyle(fontSize: widget.size * 0.225, fontWeight: FontWeight.w800, color: const Color(0xFF102D50), letterSpacing: -2)),
-                if (widget.size >= 180) const Text('WATER LEVEL', style: TextStyle(fontSize: 11, letterSpacing: 2, fontWeight: FontWeight.w700, color: Color(0xFF234D63))),
-              ])))))))));
+      label: 'Water level ${widget.level.toStringAsFixed(0)} percent',
+      child: SizedBox(
+          width: widget.size,
+          height: widget.size,
+          child: TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0, end: widget.level),
+              duration: MediaQuery.disableAnimationsOf(context)
+                  ? Duration.zero
+                  : const Duration(milliseconds: 900),
+              curve: Curves.easeOutCubic,
+              builder: (context, level, _) => AnimatedBuilder(
+                  animation: _wave,
+                  builder: (context, _) => CustomPaint(
+                      painter: _WaterGaugePainter(
+                          level,
+                          _wave.value,
+                          level <= 30
+                              ? const Color(0xFFE6A044)
+                              : const Color(0xFF079BA5)),
+                      child: Center(
+                          child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Padding(
+                                  padding: const EdgeInsets.all(22),
+                                  child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text('${level.toStringAsFixed(0)}%',
+                                            style: TextStyle(
+                                                fontSize: widget.size * 0.225,
+                                                fontWeight: FontWeight.w800,
+                                                color: const Color(0xFF102D50),
+                                                letterSpacing: -2)),
+                                        if (widget.size >= 180)
+                                          const Text('WATER LEVEL',
+                                              style: TextStyle(
+                                                  fontSize: 11,
+                                                  letterSpacing: 2,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: Color(0xFF234D63))),
+                                      ])))))))));
 }
 
 class _WaterGaugePainter extends CustomPainter {
@@ -88,4 +126,3 @@ class _WaterGaugePainter extends CustomPainter {
   bool shouldRepaint(covariant _WaterGaugePainter old) =>
       old.level != level || old.phase != phase || old.color != color;
 }
-

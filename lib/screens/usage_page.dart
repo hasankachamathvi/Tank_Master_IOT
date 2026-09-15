@@ -1,260 +1,168 @@
 import 'package:flutter/material.dart';
+import '../widgets/mobile_ui.dart';
 
-class UsagePage extends StatelessWidget {
+class UsagePage extends StatefulWidget {
   const UsagePage({super.key});
+  @override
+  State<UsagePage> createState() => _UsagePageState();
+}
 
+class _UsagePageState extends State<UsagePage> {
+  bool _monthly = false;
   @override
   Widget build(BuildContext context) {
-    const monthlyData = <Map<String, Object>>[
-      {'label': 'Week 1', 'value': 1400.0},
-      {'label': 'Week 2', 'value': 1200.0},
-      {'label': 'Week 3', 'value': 1500.0},
-      {'label': 'Week 4', 'value': 1300.0},
-    ];
-
+    final values = _monthly
+        ? [1400, 1200, 1500, 1300]
+        : [160, 190, 145, 210, 175, 200, 180];
+    final labels = _monthly
+        ? ['W1', 'W2', 'W3', 'W4']
+        : ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+    final max = _monthly ? 1600 : 240;
     return ListView(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
-      children: [
-        const Text('Usage Summary',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 4),
-        Text(
-          'Sample water consumption • Demo history',
-          style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: const [
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+        children: [
+          const PageIntro(
+              title: 'Small changes.\nMore water saved.',
+              subtitle: 'Discover your daily habits with sample usage data.',
+              icon: Icons.insights_rounded,
+              color: AppColors.violet,
+              eyebrow: 'WATER INSIGHTS'),
+          const SizedBox(height: 20),
+          const Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Expanded(
-              child: _HighlightCard(
-                title: 'Today',
-                value: '180 L',
-                icon: Icons.today,
-                color: Color(0xFF1976D2),
-              ),
-            ),
+                child: ColorStat(
+                    label: 'Used today',
+                    value: '180 L',
+                    icon: Icons.wb_sunny_outlined,
+                    color: AppColors.coral)),
             SizedBox(width: 12),
             Expanded(
-              child: _HighlightCard(
-                title: 'This Month',
-                value: '5,400 L',
-                icon: Icons.calendar_month,
-                color: Color(0xFF1565C0),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Card(
-          elevation: 0,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text('Average Daily Usage',
-                    style: TextStyle(fontSize: 14, color: Colors.black54)),
-                SizedBox(height: 6),
-                Text('180 L',
-                    style:
-                        TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: 12),
-        const _ConsumptionChart(),
-        const SizedBox(height: 24),
-        const Text('Weekly Breakdown',
-            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
-        const SizedBox(height: 8),
-        ...monthlyData.map((item) {
-          final label = item['label']! as String;
-          final value = item['value']! as double;
-          const maxValue = 1600.0;
-          final percent = (value / maxValue).clamp(0.0, 1.0).toDouble();
-
-          return Card(
-            margin: const EdgeInsets.only(bottom: 12),
-            elevation: 0,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFE3F2FD),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Icon(Icons.bar_chart,
-                            color: Color(0xFF1565C0), size: 18),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(child: Text(label)),
-                      Text(
-                        '${value.toStringAsFixed(1)} L',
-                        style: const TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  TweenAnimationBuilder<double>(
-                    tween: Tween<double>(begin: 0, end: percent),
-                    duration: const Duration(milliseconds: 800),
-                    curve: Curves.easeOutCubic,
-                    builder: (context, animatedPercent, _) {
-                      return LinearProgressIndicator(
-                        value: animatedPercent,
-                        minHeight: 10,
-                        borderRadius: BorderRadius.circular(8),
-                        color: const Color(0xFF1E88E5),
-                        backgroundColor: const Color(0xFFE3F2FD),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-          );
-        }),
-        const SizedBox(height: 12),
-        Card(
-          elevation: 0,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-          child: Padding(
-            padding: const EdgeInsets.all(14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Row(
-                  children: [
-                    Icon(Icons.lightbulb_outline,
-                        color: Color(0xFFFB8C00), size: 20),
-                    SizedBox(width: 8),
-                    Text('Tip',
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.w700)),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                const Text(
-                    'Run the pump during low-demand hours to reduce overflow risk and energy usage.'),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _HighlightCard extends StatelessWidget {
-  const _HighlightCard({
-    required this.title,
-    required this.value,
-    required this.icon,
-    required this.color,
-  });
-
-  final String title;
-  final String value;
-  final IconData icon;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(icon, color: color, size: 20),
-            ),
-            const SizedBox(height: 8),
-            Text(title,
-                style: const TextStyle(fontSize: 13, color: Colors.black54)),
-            const SizedBox(height: 4),
-            Text(value,
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ConsumptionChart extends StatelessWidget {
-  const _ConsumptionChart();
-  @override
-  Widget build(BuildContext context) {
-    const values = [1400, 1200, 1500, 1300];
-    return Card(
-        child: Padding(
-            padding: const EdgeInsets.all(20),
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              const Text('Consumption overview',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
-              const SizedBox(height: 6),
-              const Text('Monthly sample / Litres per week',
-                  style: TextStyle(color: Color(0xFF6D8190), fontSize: 12)),
-              const SizedBox(height: 24),
-              Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                for (var i = 0; i < values.length; i++)
-                  Expanded(
-                      child: Semantics(
-                          label: 'Week ${i + 1}: ${values[i]} litres',
-                          child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 8),
-                              child: Column(children: [
-                                Text('${values[i]}',
-                                    style: const TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w700)),
-                                const SizedBox(height: 8),
-                                Container(
-                                    height: values[i] / 1500 * 130,
-                                    decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                            begin: Alignment.topCenter,
-                                            end: Alignment.bottomCenter,
-                                            colors: i == 2
-                                                ? const [
-                                                    Color(0xFF087F8C),
-                                                    Color(0xFF42C7C5)
-                                                  ]
-                                                : const [
-                                                    Color(0xFFB0DEDF),
-                                                    Color(0xFFE1F2F2)
-                                                  ]),
-                                        borderRadius:
-                                            BorderRadius.circular(10))),
-                                const SizedBox(height: 12),
-                                Text('W${i + 1}',
-                                    style: const TextStyle(
-                                        fontSize: 12,
-                                        color: Color(0xFF6D8190))),
-                              ])))),
-              ]),
-            ])));
+                child: ColorStat(
+                    label: 'This month',
+                    value: '5,400 L',
+                    icon: Icons.calendar_month_outlined,
+                    color: AppColors.violet)),
+          ]),
+          const SizedBox(height: 20),
+          Card(
+              child: Padding(
+                  padding: const EdgeInsets.all(18),
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Your consumption',
+                            style: TextStyle(
+                                fontSize: 19, fontWeight: FontWeight.w800)),
+                        const SizedBox(height: 14),
+                        SegmentedButton<bool>(
+                            segments: const [
+                              ButtonSegment(value: false, label: Text('Week')),
+                              ButtonSegment(value: true, label: Text('Month'))
+                            ],
+                            selected: {
+                              _monthly
+                            },
+                            onSelectionChanged: (value) =>
+                                setState(() => _monthly = value.first)),
+                        const SizedBox(height: 22),
+                        AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 300),
+                            child: Text(_monthly ? '5,400 L' : '1,260 L',
+                                key: ValueKey(_monthly),
+                                style: const TextStyle(
+                                    fontSize: 30,
+                                    fontWeight: FontWeight.w800,
+                                    color: AppColors.violet))),
+                        Text(
+                            _monthly
+                                ? 'Sample month / litres per week'
+                                : 'Sample week / litres per day',
+                            style: const TextStyle(
+                                fontSize: 12, color: Color(0xFF6D8190))),
+                        const SizedBox(height: 20),
+                        Row(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              for (var i = 0; i < values.length; i++)
+                                Expanded(
+                                    child: Semantics(
+                                        label:
+                                            '${_monthly ? 'Week' : 'Day'} ${i + 1}: ${values[i]} litres',
+                                        child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 3),
+                                            child: Column(children: [
+                                              FittedBox(
+                                                  child: Text('${values[i]}',
+                                                      style: const TextStyle(
+                                                          fontSize: 10,
+                                                          color: Color(
+                                                              0xFF6D8190)))),
+                                              const SizedBox(height: 8),
+                                              TweenAnimationBuilder<double>(
+                                                  tween: Tween(
+                                                      begin: 0,
+                                                      end: values[i] / max),
+                                                  duration: const Duration(
+                                                      milliseconds: 650),
+                                                  curve: Curves.easeOutCubic,
+                                                  builder: (context, value, _) => Container(
+                                                      height: 140 * value + 4,
+                                                      decoration: BoxDecoration(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(9),
+                                                          gradient:
+                                                              LinearGradient(
+                                                                  begin:
+                                                                      Alignment
+                                                                          .topCenter,
+                                                                  end: Alignment
+                                                                      .bottomCenter,
+                                                                  colors:
+                                                                      i == values.length - 1
+                                                                          ? const [
+                                                                              AppColors.violet,
+                                                                              Color(0xFFB4A4EE)
+                                                                            ]
+                                                                          : const [
+                                                                              Color(0xFFD0C4F4),
+                                                                              Color(0xFFEFEAFC)
+                                                                            ])))),
+                                              const SizedBox(height: 10),
+                                              Text(labels[i],
+                                                  style: const TextStyle(
+                                                      fontSize: 11,
+                                                      color:
+                                                          Color(0xFF6D8190))),
+                                            ])))),
+                            ]),
+                      ]))),
+          const SizedBox(height: 18),
+          const ColorStat(
+              label: 'Average daily use / sample week',
+              value: '180 L',
+              icon: Icons.show_chart,
+              color: AppColors.mint),
+          const SizedBox(height: 18),
+          const Card(
+              child: Padding(
+                  padding: EdgeInsets.all(20),
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(Icons.lightbulb_outline_rounded,
+                            color: AppColors.coral),
+                        SizedBox(height: 10),
+                        Text('Make every drop count',
+                            style: TextStyle(
+                                fontSize: 17, fontWeight: FontWeight.w800)),
+                        SizedBox(height: 6),
+                        Text(
+                            'Check dripping taps and use collected rainwater for your garden. Little habits add up.',
+                            style: TextStyle(
+                                height: 1.5, color: Color(0xFF6D8190))),
+                      ]))),
+        ]);
   }
 }

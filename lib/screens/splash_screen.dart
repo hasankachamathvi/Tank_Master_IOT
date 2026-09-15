@@ -1,225 +1,175 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
-
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  late final Animation<double> _scaleAnimation;
-  late final Animation<double> _fadeAnimation;
-  late final Animation<double> _slideAnimation;
-
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _ripple =
+      AnimationController(vsync: this, duration: const Duration(seconds: 3));
   @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1800),
-    );
-
-    _scaleAnimation = CurvedAnimation(
-      parent: _controller,
-      curve: const Interval(0.0, 0.6, curve: Curves.easeOutBack),
-    );
-
-    _fadeAnimation = CurvedAnimation(
-      parent: _controller,
-      curve: const Interval(0.4, 1.0, curve: Curves.easeIn),
-    );
-
-    _slideAnimation = CurvedAnimation(
-      parent: _controller,
-      curve: const Interval(0.5, 1.0, curve: Curves.easeOutCubic),
-    );
-
-    _controller.forward();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _ripple.stop();
+    } else {
+      _ripple.repeat();
+    }
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _ripple.dispose();
     super.dispose();
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        width: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
+  Widget build(BuildContext context) => Scaffold(
+        body: DecoratedBox(
+          decoration: const BoxDecoration(
+              gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF0D47A1),
-              Color(0xFF1565C0),
-              Color(0xFF42A5F5),
-            ],
-          ),
-        ),
-        child: Stack(
-          children: [
-            // Animated background bubbles
-            Positioned(
-              top: -50,
-              right: -30,
-              child: _AnimatedBubble(size: 180, delay: 0),
-            ),
-            Positioned(
-              bottom: -40,
-              left: -20,
-              child: _AnimatedBubble(size: 140, delay: 300),
-            ),
-            Positioned(
-              top: 200,
-              left: -40,
-              child: _AnimatedBubble(size: 100, delay: 600),
-            ),
-            Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ScaleTransition(
-                    scale: _scaleAnimation,
-                    child: Container(
-                      width: 120,
-                      height: 120,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.2),
-                            blurRadius: 30,
-                            spreadRadius: 5,
-                          ),
-                        ],
-                      ),
-                      child: const Icon(
-                        Icons.water_drop,
-                        size: 64,
-                        color: Color(0xFF1565C0),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  FadeTransition(
-                    opacity: _fadeAnimation,
-                    child: SlideTransition(
-                      position: Tween<Offset>(
-                        begin: const Offset(0, 0.3),
-                        end: Offset.zero,
-                      ).animate(_slideAnimation),
-                      child: const Column(
-                        children: [
-                          Text(
-                            'Tank Master',
-                            style: TextStyle(
-                              color: Colors.white,
+            colors: [Color(0xFF0C235B), Color(0xFF1854CC), Color(0xFF4398FF)],
+          )),
+          child: Stack(fit: StackFit.expand, children: [
+            AnimatedBuilder(
+                animation: _ripple,
+                builder: (context, _) =>
+                    CustomPaint(painter: _SplashWaves(_ripple.value))),
+            SafeArea(
+                child: Column(children: [
+              const SizedBox(height: 28),
+              const Text('SMART WATER. SIMPLE LIVING.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      color: Color(0xFFC9DEFF),
+                      fontSize: 10,
+                      letterSpacing: 2,
+                      fontWeight: FontWeight.w600)),
+              Expanded(
+                  child: Center(
+                      child: SingleChildScrollView(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                child: TweenAnimationBuilder<double>(
+                    tween: Tween(begin: 0, end: 1),
+                    duration: MediaQuery.disableAnimationsOf(context)
+                        ? Duration.zero
+                        : const Duration(milliseconds: 1100),
+                    curve: Curves.easeOutCubic,
+                    builder: (context, value, child) => Opacity(
+                        opacity: value,
+                        child: Transform.translate(
+                            offset: Offset(0, 22 * (1 - value)), child: child)),
+                    child: Column(mainAxisSize: MainAxisSize.min, children: [
+                      SizedBox(
+                          width: 220,
+                          height: 220,
+                          child: AnimatedBuilder(
+                              animation: _ripple,
+                              builder: (context, _) =>
+                                  Stack(alignment: Alignment.center, children: [
+                                    for (var i = 0; i < 3; i++)
+                                      Container(
+                                          width: 144 +
+                                              ((_ripple.value + i / 3) % 1) *
+                                                  76,
+                                          height: 144 +
+                                              ((_ripple.value + i / 3) % 1) *
+                                                  76,
+                                          decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              border: Border.all(
+                                                  color: Colors.white.withValues(
+                                                      alpha: (1 -
+                                                              ((_ripple.value +
+                                                                      i / 3) %
+                                                                  1)) *
+                                                          0.22)))),
+                                    Container(
+                                        width: 132,
+                                        height: 132,
+                                        decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius:
+                                                BorderRadius.circular(40),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                  color: const Color(0xFF081B50)
+                                                      .withValues(alpha: 0.25),
+                                                  blurRadius: 36,
+                                                  offset: const Offset(0, 14))
+                                            ]),
+                                        child: const Icon(
+                                            Icons.water_drop_rounded,
+                                            size: 72,
+                                            color: Color(0xFF246BFD))),
+                                  ]))),
+                      const SizedBox(height: 18),
+                      const Text('Tank Master',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
                               fontSize: 36,
                               fontWeight: FontWeight.w800,
-                              letterSpacing: 1.2,
-                              shadows: [
-                                Shadow(
-                                  color: Colors.black26,
-                                  blurRadius: 10,
-                                  offset: Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(height: 10),
-                          Text(
-                            'Smart Water Monitoring System',
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 15,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 40),
-                  FadeTransition(
-                    opacity: _fadeAnimation,
-                    child: const SizedBox(
-                      width: 32,
-                      height: 32,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 3,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+                              color: Colors.white,
+                              letterSpacing: -1)),
+                      const SizedBox(height: 12),
+                      const Text('A little care.\nEvery drop counts.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontSize: 16,
+                              height: 1.6,
+                              color: Color(0xFFD8E7FF))),
+                    ])),
+              ))),
+              const SizedBox(
+                  width: 100,
+                  child: LinearProgressIndicator(
+                      minHeight: 3,
+                      borderRadius: BorderRadius.all(Radius.circular(4)),
+                      color: Colors.white,
+                      backgroundColor: Color(0xFF629EF0))),
+              const SizedBox(height: 14),
+              const Text('Getting things ready',
+                  style: TextStyle(fontSize: 12, color: Color(0xFFD8E7FF))),
+              const SizedBox(height: 32),
+            ])),
+          ]),
         ),
-      ),
-    );
-  }
+      );
 }
 
-class _AnimatedBubble extends StatefulWidget {
-  const _AnimatedBubble({required this.size, required this.delay});
-
-  final double size;
-  final int delay;
-
+class _SplashWaves extends CustomPainter {
+  const _SplashWaves(this.phase);
+  final double phase;
   @override
-  State<_AnimatedBubble> createState() => _AnimatedBubbleState();
-}
-
-class _AnimatedBubbleState extends State<_AnimatedBubble> with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 3),
-    )..repeat(reverse: true);
-
-    Future.delayed(Duration(milliseconds: widget.delay), () {
-      if (mounted) _controller.forward();
-    });
+  void paint(Canvas canvas, Size size) {
+    for (var layer = 0; layer < 3; layer++) {
+      final path = Path()..moveTo(0, size.height);
+      for (double x = 0; x <= size.width; x += 3) {
+        path.lineTo(
+            x,
+            size.height * (0.80 + layer * 0.06) +
+                math.sin(x / size.width * math.pi * 2 +
+                        phase * math.pi * 2 +
+                        layer) *
+                    24);
+      }
+      path.lineTo(size.width, size.height);
+      path.close();
+      canvas.drawPath(
+          path,
+          Paint()
+            ..color = Colors.white.withValues(alpha: 0.04 + layer * 0.025));
+    }
   }
 
   @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        return Transform.translate(
-          offset: Offset(0, _controller.value * 30),
-          child: Opacity(
-            opacity: 0.15 - (_controller.value * 0.08),
-            child: child,
-          ),
-        );
-      },
-      child: Container(
-        width: widget.size,
-        height: widget.size,
-        decoration: const BoxDecoration(
-          shape: BoxShape.circle,
-          color: Colors.white,
-        ),
-      ),
-    );
-  }
+  bool shouldRepaint(covariant _SplashWaves oldDelegate) =>
+      oldDelegate.phase != phase;
 }

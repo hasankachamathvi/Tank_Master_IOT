@@ -6,8 +6,7 @@ import '../models/tank_model.dart';
 import '../services/firebase_service.dart';
 
 // Main dashboard screen that displays real-time tank data and controls
-class Dashboard extends StatefulWidget 
-{
+class Dashboard extends StatefulWidget {
   const Dashboard({super.key, required this.firebaseReady});
 
   final bool firebaseReady;
@@ -16,8 +15,7 @@ class Dashboard extends StatefulWidget
   State<Dashboard> createState() => _DashboardState();
 }
 
-class _DashboardState extends State<Dashboard> 
-{
+class _DashboardState extends State<Dashboard> {
   final FirebaseService _firebaseService = FirebaseService();
 
   TankModel _tank = const TankModel(
@@ -38,26 +36,21 @@ class _DashboardState extends State<Dashboard>
   DateTime? _lastUpdatedAt;
 
   @override
-  void initState() 
-  {
+  void initState() {
     super.initState();
     _subscription = _firebaseService.getTankData().listen(
-      (tank) 
-      {
+      (tank) {
         if (!mounted) return;
-        setState(() 
-        {
+        setState(() {
           _tank = tank;
           _isLoading = false;
           _error = null;
           _lastUpdatedAt = DateTime.now();
         });
       },
-      onError: (Object err) 
-      {
+      onError: (Object err) {
         if (!mounted) return;
-        setState(() 
-        {
+        setState(() {
           _isLoading = false;
           _error = 'Unable to read tank data';
         });
@@ -67,58 +60,49 @@ class _DashboardState extends State<Dashboard>
 
 // Clean up the stream subscription when the widget is disposed to prevent memory leaks.
   @override
-  void dispose() 
-  {
+  void dispose() {
     _subscription?.cancel();
     super.dispose();
   }
 
-  Future<void> _togglePump() async 
-  {
-    if (!widget.firebaseReady) 
-    {
+  Future<void> _togglePump() async {
+    if (!widget.firebaseReady) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Firebase is not configured. Pump control is disabled.')),
+        const SnackBar(
+            content:
+                Text('Firebase is not configured. Pump control is disabled.')),
       );
       return;
     }
 
-    if (_isTogglingPump) 
-    {
+    if (_isTogglingPump) {
       return;
     }
 
     final nextState = !_tank.pump;
 
-    setState(() 
-    {
+    setState(() {
       _isTogglingPump = true;
     });
 
-    try 
-    {
+    try {
       await _firebaseService.updatePump(nextState);
-    } 
-    catch (_) 
-    {
+    } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to update pump status. Please try again.')),
+        const SnackBar(
+            content: Text('Failed to update pump status. Please try again.')),
       );
-    } 
-    finally 
-    {
+    } finally {
       if (!mounted) return;
-      setState(() 
-      {
+      setState(() {
         _isTogglingPump = false;
       });
     }
   }
 
   Future<void> _refreshDashboard() async {
-    if (_isRefreshing) 
-    {
+    if (_isRefreshing) {
       return;
     }
 
@@ -127,7 +111,10 @@ class _DashboardState extends State<Dashboard>
     });
 
     try {
-      final latestTank = await _firebaseService.getTankData().first.timeout(const Duration(seconds: 5));
+      final latestTank = await _firebaseService
+          .getTankData()
+          .first
+          .timeout(const Duration(seconds: 5));
 
       if (!mounted) return;
 
@@ -136,20 +123,17 @@ class _DashboardState extends State<Dashboard>
         _error = null;
         _lastUpdatedAt = DateTime.now();
       });
-    } 
-    on TimeoutException {
+    } on TimeoutException {
       if (!mounted) return;
       setState(() {
         _error = 'Refresh timed out. Please pull to refresh again.';
       });
-    } 
-    catch (_) {
+    } catch (_) {
       if (!mounted) return;
       setState(() {
         _error = 'Could not refresh tank data.';
       });
-    } 
-    finally {
+    } finally {
       if (!mounted) return;
       setState(() {
         _isRefreshing = false;
@@ -244,7 +228,8 @@ class _DashboardState extends State<Dashboard>
                 ? const SizedBox(
                     width: 18,
                     height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                    child: CircularProgressIndicator(
+                        strokeWidth: 2, color: Colors.white),
                   )
                 : const Icon(Icons.refresh),
             tooltip: 'Refresh now',
@@ -279,14 +264,16 @@ class _DashboardState extends State<Dashboard>
                       if (!widget.firebaseReady) ...[
                         const _AlertTile(
                           title: 'Firebase Not Configured',
-                          subtitle: 'Running in local preview mode. Data writes and live sync are disabled.',
+                          subtitle:
+                              'Running in local preview mode. Data writes and live sync are disabled.',
                           color: Colors.orange,
                         ),
                         const SizedBox(height: 16),
                       ],
                       Text(
                         _lastUpdatedLabel(),
-                        style: const TextStyle(fontSize: 13, color: Colors.black54),
+                        style: const TextStyle(
+                            fontSize: 13, color: Colors.black54),
                       ),
                       const SizedBox(height: 8),
                       Wrap(
@@ -331,10 +318,13 @@ class _DashboardState extends State<Dashboard>
                         ],
                       ),
                       const SizedBox(height: 20),
-                      const Text('Water Level', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
+                      const Text('Water Level',
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.w600)),
                       const SizedBox(height: 10),
                       TweenAnimationBuilder<double>(
-                        tween: Tween<double>(begin: 0, end: (_tank.level.clamp(0, 100)) / 100),
+                        tween: Tween<double>(
+                            begin: 0, end: (_tank.level.clamp(0, 100)) / 100),
                         duration: const Duration(milliseconds: 700),
                         builder: (context, animatedLevel, _) {
                           return LinearProgressIndicator(
@@ -346,17 +336,29 @@ class _DashboardState extends State<Dashboard>
                         },
                       ),
                       const SizedBox(height: 10),
-                      Text('${_tank.level.toStringAsFixed(1)} %', style: const TextStyle(fontSize: 18)),
+                      Text('${_tank.level.toStringAsFixed(1)} %',
+                          style: const TextStyle(fontSize: 18)),
                       const SizedBox(height: 4),
-                      Text(_levelHint(), style: const TextStyle(fontSize: 13, color: Colors.black54)),
+                      Text(_levelHint(),
+                          style: const TextStyle(
+                              fontSize: 13, color: Colors.black54)),
                       const SizedBox(height: 16),
-                      Text('Status: ${_tank.status}', style: const TextStyle(fontSize: 18)),
+                      Text('Status: ${_tank.status}',
+                          style: const TextStyle(fontSize: 18)),
                       const SizedBox(height: 24),
                       Row(
                         children: [
-                          Expanded(child: _UsageCard(title: 'Daily Usage', value: '${_tank.dailyUsage.toStringAsFixed(1)} L')),
+                          Expanded(
+                              child: _UsageCard(
+                                  title: 'Daily Usage',
+                                  value:
+                                      '${_tank.dailyUsage.toStringAsFixed(1)} L')),
                           const SizedBox(width: 12),
-                          Expanded(child: _UsageCard(title: 'Monthly Usage', value: '${_tank.monthlyUsage.toStringAsFixed(1)} L')),
+                          Expanded(
+                              child: _UsageCard(
+                                  title: 'Monthly Usage',
+                                  value:
+                                      '${_tank.monthlyUsage.toStringAsFixed(1)} L')),
                         ],
                       ),
                       const SizedBox(height: 12),
@@ -367,12 +369,15 @@ class _DashboardState extends State<Dashboard>
                       ),
                       const SizedBox(height: 24),
                       if (_tank.overflowAlert || _tank.lowLevelAlert) ...[
-                        const Text('Alerts', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
+                        const Text('Alerts',
+                            style: TextStyle(
+                                fontSize: 20, fontWeight: FontWeight.w600)),
                         const SizedBox(height: 10),
                         if (_tank.overflowAlert)
                           const _AlertTile(
                             title: 'Overflow Alert',
-                            subtitle: 'Water level is very high. Check inlet valve and pump.',
+                            subtitle:
+                                'Water level is very high. Check inlet valve and pump.',
                             color: Colors.red,
                           ),
                         if (_tank.lowLevelAlert)
@@ -389,9 +394,11 @@ class _DashboardState extends State<Dashboard>
                             ? const SizedBox(
                                 width: 18,
                                 height: 18,
-                                child: CircularProgressIndicator(strokeWidth: 2),
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
                               )
-                            : Text(_tank.pump ? 'Turn OFF Pump' : 'Turn ON Pump'),
+                            : Text(
+                                _tank.pump ? 'Turn OFF Pump' : 'Turn ON Pump'),
                       ),
                     ],
                   ),
@@ -409,18 +416,19 @@ class _UsageCard extends StatelessWidget {
 
 // The build method constructs the UI for the usage card, showing the title and value in a card layout.
   @override
-  Widget build(BuildContext context) 
-  {
+  Widget build(BuildContext context) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children:
-           [
-            Text(title, style: const TextStyle(fontSize: 14, color: Colors.black54)),
+          children: [
+            Text(title,
+                style: const TextStyle(fontSize: 14, color: Colors.black54)),
             const SizedBox(height: 8),
-            Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(value,
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           ],
         ),
       ),
@@ -428,17 +436,16 @@ class _UsageCard extends StatelessWidget {
   }
 }
 
-class _OverviewCard extends StatelessWidget 
-{
-  const _OverviewCard({required this.icon, required this.title, required this.value});
+class _OverviewCard extends StatelessWidget {
+  const _OverviewCard(
+      {required this.icon, required this.title, required this.value});
 
   final IconData icon;
   final String title;
   final String value;
 
   @override
-  Widget build(BuildContext context) 
-  {
+  Widget build(BuildContext context) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(12),
@@ -450,9 +457,13 @@ class _OverviewCard extends StatelessWidget
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(fontSize: 12, color: Colors.black54)),
+                  Text(title,
+                      style:
+                          const TextStyle(fontSize: 12, color: Colors.black54)),
                   const SizedBox(height: 4),
-                  Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                  Text(value,
+                      style: const TextStyle(
+                          fontSize: 14, fontWeight: FontWeight.w600)),
                 ],
               ),
             ),
@@ -463,35 +474,32 @@ class _OverviewCard extends StatelessWidget
   }
 }
 
-class _StatusChip extends StatelessWidget 
-{
-  const _StatusChip({required this.icon, required this.text, required this.color});
+class _StatusChip extends StatelessWidget {
+  const _StatusChip(
+      {required this.icon, required this.text, required this.color});
 
   final IconData icon;
   final String text;
   final Color color;
 
   @override
-  Widget build(BuildContext context) 
-  {
-    return Container
-    (
+  Widget build(BuildContext context) {
+    return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: color.withOpacity(0.12),
         borderRadius: BorderRadius.circular(999),
         border: Border.all(color: color.withOpacity(0.35)),
       ),
-      child: Row
-      (
+      child: Row(
         mainAxisSize: MainAxisSize.min,
-        children: 
-        [
+        children: [
           Icon(icon, size: 14, color: color),
           const SizedBox(width: 6),
           Text(
             text,
-            style: TextStyle(fontSize: 12, color: color, fontWeight: FontWeight.w600),
+            style: TextStyle(
+                fontSize: 12, color: color, fontWeight: FontWeight.w600),
           ),
         ],
       ),
@@ -499,21 +507,17 @@ class _StatusChip extends StatelessWidget
   }
 }
 
-class _AlertTile extends StatelessWidget 
-{
-  const _AlertTile
-  ({
-    required this.title, required this.subtitle, required this.color});
+class _AlertTile extends StatelessWidget {
+  const _AlertTile(
+      {required this.title, required this.subtitle, required this.color});
 
   final String title;
   final String subtitle;
   final Color color;
 
   @override
-  Widget build(BuildContext context) 
-  {
-    return Card
-    (
+  Widget build(BuildContext context) {
+    return Card(
       color: color.withOpacity(0.1),
       child: ListTile(
         leading: Icon(Icons.warning_amber_rounded, color: color),
@@ -523,4 +527,3 @@ class _AlertTile extends StatelessWidget
     );
   }
 }
-

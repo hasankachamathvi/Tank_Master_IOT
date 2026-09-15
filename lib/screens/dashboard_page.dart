@@ -16,8 +16,7 @@ class DashboardPage extends StatefulWidget {
   State<DashboardPage> createState() => _DashboardPageState();
 }
 
-class _DashboardPageState extends State<DashboardPage>
-    with TickerProviderStateMixin {
+class _DashboardPageState extends State<DashboardPage> {
   final FirebaseService _firebaseService = FirebaseService();
 
   TankModel _tank = const TankModel(
@@ -37,28 +36,9 @@ class _DashboardPageState extends State<DashboardPage>
   String? _error;
   DateTime? _lastUpdatedAt;
 
-  late final AnimationController _waveController;
-  late final AnimationController _pumpController;
-  late final AnimationController _fadeController;
-
   @override
   void initState() {
     super.initState();
-    _waveController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    )..repeat();
-
-    _pumpController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 600),
-    );
-
-    _fadeController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 800),
-    )..forward();
-
     _subscription = _firebaseService.getTankData().listen(
       (tank) {
         if (!mounted) {
@@ -71,13 +51,6 @@ class _DashboardPageState extends State<DashboardPage>
           _error = null;
           _lastUpdatedAt = DateTime.now();
         });
-
-        if (tank.pump) {
-          _pumpController.repeat(reverse: true);
-        } else {
-          _pumpController.stop();
-          _pumpController.value = 0;
-        }
       },
       onError: (Object _) {
         if (!mounted) {
@@ -95,9 +68,6 @@ class _DashboardPageState extends State<DashboardPage>
   @override
   void dispose() {
     _subscription?.cancel();
-    _waveController.dispose();
-    _pumpController.dispose();
-    _fadeController.dispose();
     super.dispose();
   }
 
@@ -293,10 +263,25 @@ class _DashboardPageState extends State<DashboardPage>
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          const PageIntro(title: 'A little care.\nEvery drop counts.',
-            subtitle: 'Your home water supply, all in one place.', icon: Icons.water_drop_outlined,
-            eyebrow: 'HOME OVERVIEW'),
+          const Text('Your water, in balance.',
+              style: TextStyle(
+                  fontSize: 25,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.ink,
+                  letterSpacing: -0.6)),
+          const SizedBox(height: 6),
+          Text(
+              FirebaseService.demoMode
+                  ? 'A little care. Every drop counts. / Demo'
+                  : 'A little care. Every drop counts.',
+              style: const TextStyle(fontSize: 12, color: Color(0xFF6D8190))),
           const SizedBox(height: 20),
+          // Animated Tank Visualization
+          _AnimatedTankCard(
+            level: _tank.level,
+            pump: _tank.pump,
+          ),
+          const SizedBox(height: 12),
           if (FirebaseService.demoMode) ...[
             const SizedBox(height: 16),
             const Text('DEMO SCENARIOS',
@@ -364,15 +349,6 @@ class _DashboardPageState extends State<DashboardPage>
             ],
           ),
           const SizedBox(height: 16),
-          // Animated Tank Visualization
-          _AnimatedTankCard(
-            level: _tank.level,
-            pump: _tank.pump,
-            waveController: _waveController,
-            pumpController: _pumpController,
-            fadeController: _fadeController,
-          ),
-          const SizedBox(height: 12),
           // Tank Level Progress
           Card(
             child: Padding(
@@ -599,17 +575,9 @@ class _DashboardPageState extends State<DashboardPage>
 
 /// A spacious water gauge with an accessible numeric reading.
 class _AnimatedTankCard extends StatelessWidget {
-  const _AnimatedTankCard(
-      {required this.level,
-      required this.pump,
-      required this.waveController,
-      required this.pumpController,
-      required this.fadeController});
+  const _AnimatedTankCard({required this.level, required this.pump});
   final double level;
   final bool pump;
-  final AnimationController waveController;
-  final AnimationController pumpController;
-  final AnimationController fadeController;
 
   @override
   Widget build(BuildContext context) {
