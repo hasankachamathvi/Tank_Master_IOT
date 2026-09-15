@@ -22,11 +22,11 @@ class _AppShellState extends State<AppShell> {
   final Set<int> _visited = {0};
   static const _labels = ['Home', 'Tanks', 'Usage', 'Alerts', 'Profile'];
   static const _colors = [
-    AppColors.aqua,
-    AppColors.aqua,
-    AppColors.violet,
-    AppColors.coral,
-    AppColors.mint
+    AppColors.blue,
+    AppColors.blue,
+    AppColors.indigo,
+    AppColors.sky,
+    AppColors.ocean
   ];
   static const _icons = [
     Icons.home_rounded,

@@ -47,7 +47,7 @@ class _ProfilePageState extends State<ProfilePage> {
             title: 'Your home.\nYour preferences.',
             subtitle: 'A personal space for your water setup.',
             icon: Icons.person_outline_rounded,
-            color: AppColors.mint,
+            color: AppColors.ocean,
             eyebrow: 'MY PROFILE'),
         const SizedBox(height: 20),
         _buildHeader(avatarColor),
@@ -70,7 +70,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget _buildHeader(Color avatarColor) {
     return Card(
       elevation: 0,
-      color: const Color(0xFFE9F6F1),
+      color: const Color(0xFFE4EFFF),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -113,7 +113,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     child: Container(
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF329B7F),
+                        color: const Color(0xFF246BDB),
                         shape: BoxShape.circle,
                         border: Border.all(color: Colors.white, width: 2),
                       ),
@@ -192,7 +192,7 @@ class _ProfilePageState extends State<ProfilePage> {
             subtitle:
                 const Text('Preview low/high level alerts on this device'),
             value: _pushAlerts,
-            activeTrackColor: const Color(0xFF329B7F),
+            activeTrackColor: const Color(0xFF246BDB),
             onChanged: (v) => setState(() => _pushAlerts = v),
           ),
           const Divider(height: 1),
@@ -200,7 +200,7 @@ class _ProfilePageState extends State<ProfilePage> {
             title: const Text('Email Summary'),
             subtitle: const Text('Preview weekly report preference'),
             value: _emailSummary,
-            activeTrackColor: const Color(0xFF329B7F),
+            activeTrackColor: const Color(0xFF246BDB),
             onChanged: (v) => setState(() => _emailSummary = v),
           ),
           const Divider(height: 1),
@@ -208,7 +208,7 @@ class _ProfilePageState extends State<ProfilePage> {
             title: const Text('Auto Pump Mode'),
             subtitle: const Text('Preview automatic pump preference'),
             value: _autoPump,
-            activeTrackColor: const Color(0xFF329B7F),
+            activeTrackColor: const Color(0xFF246BDB),
             onChanged: (v) => setState(() => _autoPump = v),
           ),
         ],
@@ -257,10 +257,10 @@ class _AccountTile extends StatelessWidget {
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: const Color(0xFFE6F5EE),
+          color: const Color(0xFFDCEBFF),
           borderRadius: BorderRadius.circular(10),
         ),
-        child: Icon(icon, color: const Color(0xFF329B7F)),
+        child: Icon(icon, color: const Color(0xFF246BDB)),
       ),
       title: Text(title),
       subtitle: Text(subtitle),
@@ -279,16 +279,16 @@ class _ProfileBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: const Color(0xFFE6F5EE),
+        color: const Color(0xFFDCEBFF),
         borderRadius: BorderRadius.circular(999),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: const Color(0xFF329B7F)),
+          Icon(icon, size: 14, color: const Color(0xFF246BDB)),
           const SizedBox(width: 4),
           Text(text,
-              style: const TextStyle(fontSize: 12, color: Color(0xFF329B7F))),
+              style: const TextStyle(fontSize: 12, color: Color(0xFF246BDB))),
         ],
       ),
     );
@@ -308,10 +308,10 @@ class _EditProfileSheetState extends State<_EditProfileSheet> {
   late final TextEditingController _phoneController;
   late final TextEditingController _locationController;
   late final TextEditingController _capacityController;
-  int _avatarColor = 0xFF329B7F;
+  int _avatarColor = 0xFF246BDB;
 
   static const _colorOptions = [
-    0xFF329B7F,
+    0xFF246BDB,
     0xFF00897B,
     0xFF7B1FA2,
     0xFFE64A19,
@@ -440,7 +440,7 @@ class _EditProfileSheetState extends State<_EditProfileSheet> {
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14)),
-                backgroundColor: const Color(0xFF329B7F),
+                backgroundColor: const Color(0xFF246BDB),
               ),
               child: const Text('Save Changes',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),

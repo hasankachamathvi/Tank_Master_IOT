@@ -56,7 +56,7 @@ class MyApp extends StatelessWidget {
       title: 'Water Tank App',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF087F8C)),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF246BDB)),
         scaffoldBackgroundColor: const Color(0xFFB7D7FF),
         appBarTheme: const AppBarTheme(
           backgroundColor: Color(0xFF91BCFF),
@@ -75,7 +75,7 @@ class MyApp extends StatelessWidget {
         ),
         filledButtonTheme: FilledButtonThemeData(
           style: FilledButton.styleFrom(
-            backgroundColor: const Color(0xFF079BA5),
+            backgroundColor: const Color(0xFF246BDB),
             foregroundColor: Colors.white,
           ),
         ),

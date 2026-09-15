@@ -25,7 +25,7 @@ class _UsagePageState extends State<UsagePage> {
               title: 'Small changes.\nMore water saved.',
               subtitle: 'Discover your daily habits with sample usage data.',
               icon: Icons.insights_rounded,
-              color: AppColors.violet,
+              color: AppColors.indigo,
               eyebrow: 'WATER INSIGHTS'),
           const SizedBox(height: 20),
           const Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -34,14 +34,14 @@ class _UsagePageState extends State<UsagePage> {
                     label: 'Used today',
                     value: '180 L',
                     icon: Icons.wb_sunny_outlined,
-                    color: AppColors.coral)),
+                    color: AppColors.sky)),
             SizedBox(width: 12),
             Expanded(
                 child: ColorStat(
                     label: 'This month',
                     value: '5,400 L',
                     icon: Icons.calendar_month_outlined,
-                    color: AppColors.violet)),
+                    color: AppColors.indigo)),
           ]),
           const SizedBox(height: 20),
           Card(
@@ -72,7 +72,7 @@ class _UsagePageState extends State<UsagePage> {
                                 style: const TextStyle(
                                     fontSize: 30,
                                     fontWeight: FontWeight.w800,
-                                    color: AppColors.violet))),
+                                    color: AppColors.indigo))),
                         Text(
                             _monthly
                                 ? 'Sample month / litres per week'
@@ -122,12 +122,12 @@ class _UsagePageState extends State<UsagePage> {
                                                                   colors:
                                                                       i == values.length - 1
                                                                           ? const [
-                                                                              AppColors.violet,
-                                                                              Color(0xFFB4A4EE)
+                                                                              AppColors.indigo,
+                                                                              Color(0xFF8DB9F3)
                                                                             ]
                                                                           : const [
-                                                                              Color(0xFFD0C4F4),
-                                                                              Color(0xFFEFEAFC)
+                                                                              Color(0xFFA9C9F5),
+                                                                              Color(0xFFDDEBFF)
                                                                             ])))),
                                               const SizedBox(height: 10),
                                               Text(labels[i],
@@ -143,7 +143,7 @@ class _UsagePageState extends State<UsagePage> {
               label: 'Average daily use / sample week',
               value: '180 L',
               icon: Icons.show_chart,
-              color: AppColors.mint),
+              color: AppColors.ocean),
           const SizedBox(height: 18),
           const Card(
               child: Padding(
@@ -152,7 +152,7 @@ class _UsagePageState extends State<UsagePage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Icon(Icons.lightbulb_outline_rounded,
-                            color: AppColors.coral),
+                            color: AppColors.sky),
                         SizedBox(height: 10),
                         Text('Make every drop count',
                             style: TextStyle(

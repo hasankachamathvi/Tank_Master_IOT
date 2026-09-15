@@ -48,7 +48,7 @@ class _WaterGaugeState extends State<WaterGauge>
                           _wave.value,
                           level <= 30
                               ? const Color(0xFFE6A044)
-                              : const Color(0xFF079BA5)),
+                              : const Color(0xFF246BDB)),
                       child: Center(
                           child: FittedBox(
                               fit: BoxFit.scaleDown,
@@ -87,7 +87,7 @@ class _WaterGaugePainter extends CustomPainter {
         center,
         radius,
         Paint()
-          ..color = const Color(0xFFE7F0F3)
+          ..color = const Color(0xFFDCE8F8)
           ..style = PaintingStyle.stroke
           ..strokeWidth = 8);
     canvas.drawArc(
@@ -103,7 +103,7 @@ class _WaterGaugePainter extends CustomPainter {
     canvas.save();
     canvas.clipPath(
         Path()..addOval(Rect.fromCircle(center: center, radius: radius - 12)));
-    canvas.drawColor(const Color(0xFFF2FAFA), BlendMode.srcOver);
+    canvas.drawColor(const Color(0xFFF0F6FF), BlendMode.srcOver);
     for (var layer = 0; layer < 2; layer++) {
       final path = Path()..moveTo(0, size.height);
       for (double x = 0; x <= size.width; x += 2) {

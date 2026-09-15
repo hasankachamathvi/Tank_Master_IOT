@@ -436,7 +436,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   title: 'Daily Usage',
                   value: '${_tank.dailyUsage.toStringAsFixed(1)} L',
                   icon: Icons.today,
-                  color: AppColors.violet,
+                  color: AppColors.indigo,
                 ),
               ),
               const SizedBox(width: 12),
@@ -445,7 +445,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   title: 'Monthly Usage',
                   value: '${_tank.monthlyUsage.toStringAsFixed(1)} L',
                   icon: Icons.calendar_month,
-                  color: AppColors.mint,
+                  color: AppColors.ocean,
                 ),
               ),
             ],
@@ -589,10 +589,10 @@ class _AnimatedTankCard extends StatelessWidget {
             Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                    color: const Color(0xFFE5F5F4),
+                    color: const Color(0xFFE0EDFF),
                     borderRadius: BorderRadius.circular(14)),
                 child:
-                    const Icon(Icons.water_outlined, color: Color(0xFF078B94))),
+                    const Icon(Icons.water_outlined, color: Color(0xFF246BDB))),
             const SizedBox(width: 12),
             const Expanded(
                 child: Column(

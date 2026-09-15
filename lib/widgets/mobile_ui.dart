@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 class AppColors {
   static const ink = Color(0xFF16364B);
-  static const aqua = Color(0xFF079BA5);
-  static const violet = Color(0xFF7961CC);
-  static const coral = Color(0xFFE77965);
-  static const mint = Color(0xFF329B7F);
+  static const blue = Color(0xFF246BDB);
+  static const indigo = Color(0xFF365CBD);
+  static const sky = Color(0xFF237EB7);
+  static const ocean = Color(0xFF226DA5);
 }
 
 class PageIntro extends StatelessWidget {
@@ -14,7 +14,7 @@ class PageIntro extends StatelessWidget {
       required this.title,
       required this.subtitle,
       required this.icon,
-      this.color = AppColors.aqua,
+      this.color = AppColors.blue,
       this.eyebrow = 'TANK MASTER'});
   final String title, subtitle, eyebrow;
   final IconData icon;
@@ -80,7 +80,7 @@ class ColorStat extends StatelessWidget {
   Widget build(BuildContext context) => Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-          color: Color.lerp(color, Colors.white, 0.9),
+          color: Color.lerp(color, const Color(0xFFF0F7FF), 0.91),
           borderRadius: BorderRadius.circular(22)),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Icon(icon, color: color, size: 24),

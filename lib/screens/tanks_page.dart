@@ -27,7 +27,7 @@ class _TanksPageState extends State<TanksPage> {
         const names = ['Main rooftop tank', 'Backup tank', 'Garden tank'];
         const locations = ['Block A', 'Ground floor', 'Outdoor utility'];
         const capacities = [1000, 600, 450];
-        const colors = [AppColors.aqua, AppColors.coral, AppColors.mint];
+        const colors = [AppColors.blue, AppColors.sky, AppColors.ocean];
         return ListView(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
             children: [
@@ -174,7 +174,7 @@ class TankDetailsPage extends StatelessWidget {
                           style: const TextStyle(
                               fontSize: 19,
                               fontWeight: FontWeight.w800,
-                              color: AppColors.aqua)),
+                              color: AppColors.blue)),
                       const SizedBox(height: 8),
                       const Text('Water level at the time you opened this tank',
                           textAlign: TextAlign.center,
@@ -188,14 +188,14 @@ class TankDetailsPage extends StatelessWidget {
                       label: 'Available water',
                       value: '${(capacity * level / 100).round()} L',
                       icon: Icons.water_drop_outlined,
-                      color: AppColors.aqua)),
+                      color: AppColors.blue)),
               const SizedBox(width: 12),
               Expanded(
                   child: ColorStat(
                       label: 'Pump status',
                       value: pump ? 'Running' : 'Standby',
                       icon: Icons.power_settings_new,
-                      color: AppColors.violet)),
+                      color: AppColors.indigo)),
             ]),
             const SizedBox(height: 20),
             const Card(

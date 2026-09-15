@@ -20,7 +20,7 @@ class _AlertsPageState extends State<AlertsPage> {
     'Sample consumption increased by 18% compared with the previous week.',
     'The sample pump runtime is within its normal range.'
   ];
-  static const _colors = [AppColors.coral, AppColors.violet, AppColors.mint];
+  static const _colors = [AppColors.sky, AppColors.indigo, AppColors.ocean];
   static const _icons = [
     Icons.water_drop_outlined,
     Icons.trending_up,
@@ -39,7 +39,7 @@ class _AlertsPageState extends State<AlertsPage> {
               title: 'A heads-up.\nPeace of mind.',
               subtitle: 'Your sample notification history, in one place.',
               icon: Icons.notifications_active_outlined,
-              color: AppColors.coral,
+              color: AppColors.sky,
               eyebrow: 'NOTIFICATIONS'),
           const SizedBox(height: 20),
           Row(children: [
@@ -65,7 +65,7 @@ class _AlertsPageState extends State<AlertsPage> {
             const Padding(
                 padding: EdgeInsets.symmetric(vertical: 40),
                 child: Column(children: [
-                  Icon(Icons.done_all, color: AppColors.mint, size: 48),
+                  Icon(Icons.done_all, color: AppColors.ocean, size: 48),
                   SizedBox(height: 12),
                   Text('All caught up!',
                       style:
