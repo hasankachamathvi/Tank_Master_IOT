@@ -6,19 +6,20 @@ class UsagePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const monthlyData = <Map<String, Object>>[
-      {'label': 'Week 1', 'value': 120.0},
-      {'label': 'Week 2', 'value': 96.0},
-      {'label': 'Week 3', 'value': 140.0},
-      {'label': 'Week 4', 'value': 110.0},
+      {'label': 'Week 1', 'value': 1400.0},
+      {'label': 'Week 2', 'value': 1200.0},
+      {'label': 'Week 3', 'value': 1500.0},
+      {'label': 'Week 4', 'value': 1300.0},
     ];
 
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
       children: [
-        const Text('Usage Summary', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+        const Text('Usage Summary',
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
         const SizedBox(height: 4),
         Text(
-          'Track your water consumption',
+          'Sample water consumption • Demo history',
           style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
         ),
         const SizedBox(height: 12),
@@ -27,7 +28,7 @@ class UsagePage extends StatelessWidget {
             Expanded(
               child: _HighlightCard(
                 title: 'Today',
-                value: '4.2 L',
+                value: '180 L',
                 icon: Icons.today,
                 color: Color(0xFF1976D2),
               ),
@@ -36,7 +37,7 @@ class UsagePage extends StatelessWidget {
             Expanded(
               child: _HighlightCard(
                 title: 'This Month',
-                value: '466 L',
+                value: '5,400 L',
                 icon: Icons.calendar_month,
                 color: Color(0xFF1565C0),
               ),
@@ -45,32 +46,41 @@ class UsagePage extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         Card(
-          elevation: 2,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          elevation: 0,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: const [
-                Text('Average Daily Usage', style: TextStyle(fontSize: 14, color: Colors.black54)),
+                Text('Average Daily Usage',
+                    style: TextStyle(fontSize: 14, color: Colors.black54)),
                 SizedBox(height: 6),
-                Text('3.8 L', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                Text('180 L',
+                    style:
+                        TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
               ],
             ),
           ),
         ),
         const SizedBox(height: 12),
-        const Text('Weekly Breakdown', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
+        const _ConsumptionChart(),
+        const SizedBox(height: 24),
+        const Text('Weekly Breakdown',
+            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
         const SizedBox(height: 8),
         ...monthlyData.map((item) {
           final label = item['label']! as String;
           final value = item['value']! as double;
-          const maxValue = 160.0;
+          const maxValue = 1600.0;
           final percent = (value / maxValue).clamp(0.0, 1.0).toDouble();
 
           return Card(
-            elevation: 2,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            margin: const EdgeInsets.only(bottom: 12),
+            elevation: 0,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
             child: Padding(
               padding: const EdgeInsets.all(12),
               child: Column(
@@ -83,7 +93,8 @@ class UsagePage extends StatelessWidget {
                           color: const Color(0xFFE3F2FD),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: const Icon(Icons.bar_chart, color: Color(0xFF1565C0), size: 18),
+                        child: const Icon(Icons.bar_chart,
+                            color: Color(0xFF1565C0), size: 18),
                       ),
                       const SizedBox(width: 8),
                       Expanded(child: Text(label)),
@@ -115,8 +126,9 @@ class UsagePage extends StatelessWidget {
         }),
         const SizedBox(height: 12),
         Card(
-          elevation: 2,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          elevation: 0,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
           child: Padding(
             padding: const EdgeInsets.all(14),
             child: Column(
@@ -124,13 +136,17 @@ class UsagePage extends StatelessWidget {
               children: [
                 const Row(
                   children: [
-                    Icon(Icons.lightbulb_outline, color: Color(0xFFFB8C00), size: 20),
+                    Icon(Icons.lightbulb_outline,
+                        color: Color(0xFFFB8C00), size: 20),
                     SizedBox(width: 8),
-                    Text('Tip', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+                    Text('Tip',
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w700)),
                   ],
                 ),
                 const SizedBox(height: 6),
-                const Text('Run the pump during low-demand hours to reduce overflow risk and energy usage.'),
+                const Text(
+                    'Run the pump during low-demand hours to reduce overflow risk and energy usage.'),
               ],
             ),
           ),
@@ -156,7 +172,7 @@ class _HighlightCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 2,
+      elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(12),
@@ -172,12 +188,73 @@ class _HighlightCard extends StatelessWidget {
               child: Icon(icon, color: color, size: 20),
             ),
             const SizedBox(height: 8),
-            Text(title, style: const TextStyle(fontSize: 13, color: Colors.black54)),
+            Text(title,
+                style: const TextStyle(fontSize: 13, color: Colors.black54)),
             const SizedBox(height: 4),
-            Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(value,
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           ],
         ),
       ),
     );
+  }
+}
+
+class _ConsumptionChart extends StatelessWidget {
+  const _ConsumptionChart();
+  @override
+  Widget build(BuildContext context) {
+    const values = [1400, 1200, 1500, 1300];
+    return Card(
+        child: Padding(
+            padding: const EdgeInsets.all(20),
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              const Text('Consumption overview',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+              const SizedBox(height: 6),
+              const Text('Monthly sample / Litres per week',
+                  style: TextStyle(color: Color(0xFF6D8190), fontSize: 12)),
+              const SizedBox(height: 24),
+              Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+                for (var i = 0; i < values.length; i++)
+                  Expanded(
+                      child: Semantics(
+                          label: 'Week ${i + 1}: ${values[i]} litres',
+                          child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8),
+                              child: Column(children: [
+                                Text('${values[i]}',
+                                    style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w700)),
+                                const SizedBox(height: 8),
+                                Container(
+                                    height: values[i] / 1500 * 130,
+                                    decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                            begin: Alignment.topCenter,
+                                            end: Alignment.bottomCenter,
+                                            colors: i == 2
+                                                ? const [
+                                                    Color(0xFF087F8C),
+                                                    Color(0xFF42C7C5)
+                                                  ]
+                                                : const [
+                                                    Color(0xFFB0DEDF),
+                                                    Color(0xFFE1F2F2)
+                                                  ]),
+                                        borderRadius:
+                                            BorderRadius.circular(10))),
+                                const SizedBox(height: 12),
+                                Text('W${i + 1}',
+                                    style: const TextStyle(
+                                        fontSize: 12,
+                                        color: Color(0xFF6D8190))),
+                              ])))),
+              ]),
+            ])));
   }
 }

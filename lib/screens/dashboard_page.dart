@@ -1,5 +1,6 @@
 import 'dart:async';
-import 'dart:math' as math;
+import '../widgets/water_gauge.dart';
+import '../widgets/mobile_ui.dart';
 
 import 'package:flutter/material.dart';
 
@@ -15,7 +16,8 @@ class DashboardPage extends StatefulWidget {
   State<DashboardPage> createState() => _DashboardPageState();
 }
 
-class _DashboardPageState extends State<DashboardPage> with TickerProviderStateMixin {
+class _DashboardPageState extends State<DashboardPage>
+    with TickerProviderStateMixin {
   final FirebaseService _firebaseService = FirebaseService();
 
   TankModel _tank = const TankModel(
@@ -100,9 +102,11 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
   }
 
   Future<void> _togglePump() async {
-    if (!widget.firebaseReady) {
+    if (!widget.firebaseReady && !FirebaseService.demoMode) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Firebase is not configured. Pump control is disabled.')),
+        const SnackBar(
+            content:
+                Text('Firebase is not configured. Pump control is disabled.')),
       );
       return;
     }
@@ -123,7 +127,8 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to update pump status. Please try again.')),
+        const SnackBar(
+            content: Text('Failed to update pump status. Please try again.')),
       );
     } finally {
       if (!mounted) {
@@ -146,7 +151,10 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
     });
 
     try {
-      final latestTank = await _firebaseService.getTankData().first.timeout(const Duration(seconds: 5));
+      final latestTank = await _firebaseService
+          .getTankData()
+          .first
+          .timeout(const Duration(seconds: 5));
 
       if (!mounted) {
         return;
@@ -195,6 +203,7 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
   }
 
   String _lastUpdatedLabel() {
+    if (FirebaseService.demoMode) return 'Sample readings • Main rooftop tank';
     if (_lastUpdatedAt == null) {
       return 'Waiting for live data...';
     }
@@ -204,6 +213,7 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
   }
 
   String _dataFreshnessLabel() {
+    if (FirebaseService.demoMode) return 'Demo';
     if (_lastUpdatedAt == null) {
       return 'Awaiting data';
     }
@@ -283,15 +293,30 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          if (!widget.firebaseReady)
-            const Card(
-              color: Color(0xFFFFF3E0),
-              child: ListTile(
-                leading: Icon(Icons.wifi_off),
-                title: Text('Firebase not configured'),
-                subtitle: Text('Running in local preview mode with default values.'),
-              ),
-            ),
+          const PageIntro(title: 'A little care.\nEvery drop counts.',
+            subtitle: 'Your home water supply, all in one place.', icon: Icons.water_drop_outlined,
+            eyebrow: 'HOME OVERVIEW'),
+          const SizedBox(height: 20),
+          if (FirebaseService.demoMode) ...[
+            const SizedBox(height: 16),
+            const Text('DEMO SCENARIOS',
+                style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1.5,
+                    color: Color(0xFF547084))),
+            const SizedBox(height: 8),
+            Wrap(spacing: 8, runSpacing: 8, children: [
+              for (final scenario
+                  in const {'Low': 18.0, 'Normal': 72.0, 'Full': 98.0}.entries)
+                ChoiceChip(
+                  label: Text('${scenario.key} ${scenario.value.toInt()}%'),
+                  selected: _tank.level == scenario.value,
+                  onSelected: (_) =>
+                      FirebaseService.previewLevel(scenario.value),
+                ),
+            ]),
+          ],
           const SizedBox(height: 8),
           Row(
             children: [
@@ -332,7 +357,9 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
               _StatusChip(
                 icon: _tank.pump ? Icons.power : Icons.power_off,
                 text: _tank.pump ? 'Pump ON' : 'Pump OFF',
-                color: _tank.pump ? const Color(0xFF1565C0) : const Color(0xFF607D8B),
+                color: _tank.pump
+                    ? const Color(0xFF1565C0)
+                    : const Color(0xFF607D8B),
               ),
             ],
           ),
@@ -355,11 +382,13 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
                 children: [
                   Row(
                     children: [
-                      const Text(
+                      const Expanded(
+                          child: Text(
                         'Tank Level',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      const Spacer(),
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      )),
+                      const SizedBox(width: 12),
                       Text(
                         '${_tank.level.toStringAsFixed(1)}%',
                         style: TextStyle(
@@ -372,7 +401,8 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
                   ),
                   const SizedBox(height: 10),
                   TweenAnimationBuilder<double>(
-                    tween: Tween<double>(begin: 0, end: (_tank.level.clamp(0, 100)) / 100),
+                    tween: Tween<double>(
+                        begin: 0, end: (_tank.level.clamp(0, 100)) / 100),
                     duration: const Duration(milliseconds: 800),
                     curve: Curves.easeOutCubic,
                     builder: (context, animatedLevel, _) {
@@ -415,7 +445,9 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
                   title: 'Pump Status',
                   value: _tank.pump ? 'ON' : 'OFF',
                   icon: _tank.pump ? Icons.power : Icons.power_off,
-                  color: _tank.pump ? const Color(0xFF1976D2) : const Color(0xFF607D8B),
+                  color: _tank.pump
+                      ? const Color(0xFF1976D2)
+                      : const Color(0xFF607D8B),
                 ),
               ),
             ],
@@ -428,7 +460,7 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
                   title: 'Daily Usage',
                   value: '${_tank.dailyUsage.toStringAsFixed(1)} L',
                   icon: Icons.today,
-                  color: const Color(0xFF42A5F5),
+                  color: AppColors.violet,
                 ),
               ),
               const SizedBox(width: 12),
@@ -437,7 +469,7 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
                   title: 'Monthly Usage',
                   value: '${_tank.monthlyUsage.toStringAsFixed(1)} L',
                   icon: Icons.calendar_month,
-                  color: const Color(0xFF0D47A1),
+                  color: AppColors.mint,
                 ),
               ),
             ],
@@ -465,7 +497,8 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
             if (_tank.overflowAlert)
               const _AlertTile(
                 title: 'Overflow Alert',
-                subtitle: 'Water level is very high. Check inlet valve and pump.',
+                subtitle:
+                    'Water level is very high. Check inlet valve and pump.',
                 color: Colors.red,
               ),
             if (_tank.lowLevelAlert)
@@ -483,7 +516,9 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: (_tank.pump ? const Color(0xFF1565C0) : const Color(0xFF607D8B))
+                  color: (_tank.pump
+                          ? const Color(0xFF1565C0)
+                          : const Color(0xFF607D8B))
                       .withValues(alpha: 0.3),
                   blurRadius: 12,
                   spreadRadius: 2,
@@ -497,18 +532,23 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
-                backgroundColor: _tank.pump ? const Color(0xFFE53935) : const Color(0xFF1565C0),
+                backgroundColor: _tank.pump
+                    ? const Color(0xFFE53935)
+                    : const Color(0xFF1565C0),
               ),
               icon: _isTogglingPump
                   ? const SizedBox(
                       width: 18,
                       height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2, color: Colors.white),
                     )
                   : AnimatedSwitcher(
                       duration: const Duration(milliseconds: 300),
                       child: Icon(
-                        _tank.pump ? Icons.power_settings_new : Icons.play_arrow,
+                        _tank.pump
+                            ? Icons.power_settings_new
+                            : Icons.play_arrow,
                         key: ValueKey(_tank.pump),
                         color: Colors.white,
                       ),
@@ -517,7 +557,8 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
                 _isTogglingPump
                     ? 'Updating Pump...'
                     : (_tank.pump ? 'Turn Off Pump' : 'Turn On Pump'),
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
             ),
           ),
@@ -535,12 +576,16 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
                   const SizedBox(height: 8),
                   _RecommendationRow(
                     icon: Icons.water,
-                    text: _tank.level <= 25 ? 'Fill the tank soon to avoid low-level alerts.' : 'Water level is healthy.',
+                    text: _tank.level <= 25
+                        ? 'Fill the tank soon to avoid low-level alerts.'
+                        : 'Water level is healthy.',
                   ),
                   const SizedBox(height: 4),
                   _RecommendationRow(
                     icon: Icons.timeline,
-                    text: _tank.flow <= 0 ? 'No active flow detected right now.' : 'Flow is active and stable.',
+                    text: _tank.flow <= 0
+                        ? 'No active flow detected right now.'
+                        : 'Flow is active and stable.',
                   ),
                 ],
               ),
@@ -552,16 +597,14 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
   }
 }
 
-/// Animated tank visualization with water waves
+/// A spacious water gauge with an accessible numeric reading.
 class _AnimatedTankCard extends StatelessWidget {
-  const _AnimatedTankCard({
-    required this.level,
-    required this.pump,
-    required this.waveController,
-    required this.pumpController,
-    required this.fadeController,
-  });
-
+  const _AnimatedTankCard(
+      {required this.level,
+      required this.pump,
+      required this.waveController,
+      required this.pumpController,
+      required this.fadeController});
   final double level;
   final bool pump;
   final AnimationController waveController;
@@ -570,251 +613,74 @@ class _AnimatedTankCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final normalized = (level.clamp(0, 100)) / 100;
-    final fillColor = normalized >= 0.8
-        ? const Color(0xFF1565C0)
-        : normalized >= 0.35
-            ? const Color(0xFF1E88E5)
-            : const Color(0xFF64B5F6);
-
-    return FadeTransition(
-      opacity: fadeController,
-      child: Card(
-        elevation: 4,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Row(
-            children: [
-              // Tank visualization
-              SizedBox(
-                width: 110,
-                height: 170,
-                child: Stack(
-                  alignment: Alignment.bottomCenter,
-                  children: [
-                    // Tank body
-                    Container(
-                      width: 100,
-                      height: 160,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE3F2FD),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: const Color(0xFF1565C0), width: 3),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFF1565C0).withValues(alpha: 0.2),
-                            blurRadius: 10,
-                            spreadRadius: 2,
-                          ),
-                        ],
-                      ),
-                    ),
-                    // Water fill with wave animation
-                    ClipRRect(
-                      borderRadius: const BorderRadius.vertical(
-                        bottom: Radius.circular(13),
-                        top: Radius.circular(6),
-                      ),
-                      child: AnimatedBuilder(
-                        animation: waveController,
-                        builder: (context, child) {
-                          return Container(
-                            width: 100,
-                            height: 160 * normalized,
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                colors: [
-                                  fillColor.withValues(alpha: 0.8),
-                                  fillColor,
-                                ],
-                              ),
-                            ),
-                            child: CustomPaint(
-                              painter: _WavePainter(
-                                color: Colors.white.withValues(alpha: 0.3),
-                                waveOffset: waveController.value * 2 * math.pi,
-                                amplitude: pump ? 4.0 : 2.0,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    // Level text
-                    Positioned(
-                      top: 8,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.9),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          '${level.toStringAsFixed(0)}%',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w800,
-                            color: Color(0xFF0D47A1),
-                          ),
-                        ),
-                      ),
-                    ),
-                    // Pump indicator
-                    if (pump)
-                      Positioned(
-                        bottom: 8,
-                        child: ScaleTransition(
-                          scale: Tween<double>(begin: 0.8, end: 1.2).animate(
-                            CurvedAnimation(
-                              parent: pumpController,
-                              curve: Curves.easeInOut,
-                            ),
-                          ),
-                          child: Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.9),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.power,
-                              size: 16,
-                              color: Color(0xFF1565C0),
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 20),
-              // Tank info
-              Expanded(
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(children: [
+          Row(children: [
+            Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                    color: const Color(0xFFE5F5F4),
+                    borderRadius: BorderRadius.circular(14)),
+                child:
+                    const Icon(Icons.water_outlined, color: Color(0xFF078B94))),
+            const SizedBox(width: 12),
+            const Expanded(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Main Tank',
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Rooftop • Block A',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    _InfoRow(
-                      icon: Icons.water_drop,
-                      label: 'Water Level',
-                      value: '${level.toStringAsFixed(1)}%',
-                      color: fillColor,
-                    ),
-                    const SizedBox(height: 8),
-                    _InfoRow(
-                      icon: Icons.speed,
-                      label: 'Status',
-                      value: level >= 80
-                          ? 'Full'
-                          : level <= 30
-                              ? 'Low'
-                              : 'Normal',
-                      color: fillColor,
-                    ),
-                    const SizedBox(height: 8),
-                    _InfoRow(
-                      icon: Icons.power_settings_new,
-                      label: 'Pump',
-                      value: pump ? 'Running' : 'Stopped',
-                      color: pump ? const Color(0xFF1565C0) : const Color(0xFF607D8B),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                  Text('Main rooftop tank',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+                  SizedBox(height: 4),
+                  Text('Block A / 1,000 L capacity',
+                      style: TextStyle(fontSize: 12, color: Color(0xFF6D8190))),
+                ])),
+          ]),
+          const SizedBox(height: 24),
+          WaterGauge(level: level),
+          const SizedBox(height: 24),
+          Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 24,
+              runSpacing: 12,
+              children: [
+                _GaugeStat(
+                    label: 'Available water',
+                    value: '${(level * 10).toStringAsFixed(0)} L'),
+                _GaugeStat(
+                    label: 'Tank status',
+                    value: level <= 30
+                        ? 'Low level'
+                        : level >= 80
+                            ? 'Full'
+                            : pump
+                                ? 'Filling'
+                                : 'Normal'),
+                _GaugeStat(label: 'Pump', value: pump ? 'Running' : 'Standby'),
+              ]),
+        ]),
       ),
     );
   }
 }
 
-class _WavePainter extends CustomPainter {
-  const _WavePainter({
-    required this.color,
-    required this.waveOffset,
-    required this.amplitude,
-  });
-
-  final Color color;
-  final double waveOffset;
-  final double amplitude;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill;
-
-    final path = Path();
-    path.moveTo(0, size.height);
-
-    for (double x = 0; x <= size.width; x += 2) {
-      final y = size.height * 0.3 + math.sin((x / size.width) * 2 * math.pi + waveOffset) * amplitude;
-      path.lineTo(x, y);
-    }
-
-    path.lineTo(size.width, size.height);
-    path.close();
-    canvas.drawPath(path, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant _WavePainter oldDelegate) {
-    return oldDelegate.waveOffset != waveOffset ||
-        oldDelegate.color != color ||
-        oldDelegate.amplitude != amplitude;
-  }
-}
-
-class _InfoRow extends StatelessWidget {
-  const _InfoRow({
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.color,
-  });
-
-  final IconData icon;
+class _GaugeStat extends StatelessWidget {
+  const _GaugeStat({required this.label, required this.value});
   final String label;
   final String value;
-  final Color color;
-
   @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Icon(icon, size: 18, color: color),
-        const SizedBox(width: 8),
-        Text(
-          label,
-          style: const TextStyle(fontSize: 13, color: Colors.black54),
-        ),
-        const Spacer(),
-        Text(
-          value,
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
-        ),
-      ],
-    );
-  }
+  Widget build(BuildContext context) => Column(children: [
+        Text(value,
+            style: const TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w800,
+                color: Color(0xFF102D50))),
+        const SizedBox(height: 5),
+        Text(label,
+            style: const TextStyle(fontSize: 11, color: Color(0xFF6D8190))),
+      ]);
 }
 
 class _MetricCard extends StatelessWidget {
@@ -832,40 +698,13 @@ class _MetricCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(icon, color: color, size: 22),
-            ),
-            const SizedBox(height: 10),
-            Text(title, style: const TextStyle(fontSize: 13, color: Colors.black54)),
-            const SizedBox(height: 6),
-            Text(
-              value,
-              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-      ),
-    );
+    return ColorStat(label: title, value: value, icon: icon, color: color);
   }
 }
 
 class _StatusChip extends StatelessWidget {
-  const _StatusChip({required this.icon, required this.text, required this.color});
+  const _StatusChip(
+      {required this.icon, required this.text, required this.color});
 
   final IconData icon;
   final String text;
@@ -887,7 +726,8 @@ class _StatusChip extends StatelessWidget {
           const SizedBox(width: 6),
           Text(
             text,
-            style: TextStyle(fontSize: 12, color: color, fontWeight: FontWeight.w600),
+            style: TextStyle(
+                fontSize: 12, color: color, fontWeight: FontWeight.w600),
           ),
         ],
       ),
@@ -896,7 +736,8 @@ class _StatusChip extends StatelessWidget {
 }
 
 class _AlertTile extends StatelessWidget {
-  const _AlertTile({required this.title, required this.subtitle, required this.color});
+  const _AlertTile(
+      {required this.title, required this.subtitle, required this.color});
 
   final String title;
   final String subtitle;
@@ -997,7 +838,7 @@ class _SimulatorCardState extends State<_SimulatorCard> {
             : const Color(0xFF42A5F5);
 
     return Card(
-      elevation: 2,
+      elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -1012,7 +853,8 @@ class _SimulatorCardState extends State<_SimulatorCard> {
                     color: const Color(0xFFE3F2FD),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(Icons.tune, color: Color(0xFF1565C0), size: 20),
+                  child: const Icon(Icons.tune,
+                      color: Color(0xFF1565C0), size: 20),
                 ),
                 const SizedBox(width: 10),
                 const Expanded(
@@ -1022,14 +864,18 @@ class _SimulatorCardState extends State<_SimulatorCard> {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: const Color(0xFFE8F5E9),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Text(
                     'TEST MODE',
-                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Color(0xFF2E7D32)),
+                    style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF2E7D32)),
                   ),
                 ),
               ],
@@ -1043,13 +889,17 @@ class _SimulatorCardState extends State<_SimulatorCard> {
             // Level slider
             Row(
               children: [
-                const Icon(Icons.water_drop, size: 18, color: Color(0xFF1565C0)),
+                const Icon(Icons.water_drop,
+                    size: 18, color: Color(0xFF1565C0)),
                 const SizedBox(width: 8),
-                const Text('Tank Level', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                const Text('Tank Level',
+                    style:
+                        TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
                 const Spacer(),
                 Text(
                   '${_level.toStringAsFixed(0)}%',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: color),
+                  style: TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.w800, color: color),
                 ),
               ],
             ),
@@ -1067,11 +917,16 @@ class _SimulatorCardState extends State<_SimulatorCard> {
               children: [
                 const Icon(Icons.speed, size: 18, color: Color(0xFF1565C0)),
                 const SizedBox(width: 8),
-                const Text('Flow Rate', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                const Text('Flow Rate',
+                    style:
+                        TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
                 const Spacer(),
                 Text(
                   '${_flow.toStringAsFixed(1)} L/min',
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF1565C0)),
+                  style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF1565C0)),
                 ),
               ],
             ),
@@ -1105,7 +960,8 @@ class _SimulatorCardState extends State<_SimulatorCard> {
                         ? const SizedBox(
                             width: 16,
                             height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2, color: Colors.white),
                           )
                         : const Icon(Icons.save, size: 18),
                     label: const Text('Set Level'),
@@ -1119,4 +975,3 @@ class _SimulatorCardState extends State<_SimulatorCard> {
     );
   }
 }
-

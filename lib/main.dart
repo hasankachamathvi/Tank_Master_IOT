@@ -56,15 +56,20 @@ class MyApp extends StatelessWidget {
       title: 'Water Tank App',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF1565C0)),
-        scaffoldBackgroundColor: const Color(0xFFEAF3FF),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF087F8C)),
+        scaffoldBackgroundColor: const Color(0xFFF3F7FA),
         appBarTheme: const AppBarTheme(
           backgroundColor: Color(0xFF1565C0),
           foregroundColor: Colors.white,
           centerTitle: true,
         ),
         cardTheme: const CardThemeData(
-          elevation: 2,
+          elevation: 0,
+          color: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(20)),
+            side: BorderSide(color: Color(0xFFE2EAF0)),
+          ),
           margin: EdgeInsets.zero,
         ),
         filledButtonTheme: FilledButtonThemeData(
@@ -133,4 +138,3 @@ class _AppRootState extends State<AppRoot> {
     );
   }
 }
-

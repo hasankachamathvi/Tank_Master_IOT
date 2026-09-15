@@ -10,6 +10,28 @@ class FirebaseService {
 
   DatabaseReference? _db;
 
+  static const bool demoMode =
+      bool.fromEnvironment('DEMO_MODE', defaultValue: true);
+  static TankModel _demoTank = const TankModel(
+    level: 72,
+    pump: true,
+    flow: 12.4,
+    dailyUsage: 180,
+    monthlyUsage: 5400,
+    overflowAlert: false,
+    lowLevelAlert: false,
+  );
+  static final _demoChanges = StreamController<TankModel>.broadcast();
+
+  static void previewLevel(double level) {
+    _demoTank = _demoTank.copyWith(
+      level: level,
+      lowLevelAlert: level <= 20,
+      overflowAlert: level >= 95,
+    );
+    _demoChanges.add(_demoTank);
+  }
+
   static const TankModel _fallbackTank = TankModel(
     level: 0,
     pump: false,
@@ -33,6 +55,13 @@ class FirebaseService {
   /// Get real-time tank data stream
   /// Emits fallback data immediately, then updates with real-time data when available.
   Stream<TankModel> getTankData() {
+    if (demoMode) {
+      return Stream.multi((controller) {
+        controller.add(_demoTank);
+        final subscription = _demoChanges.stream.listen(controller.add);
+        controller.onCancel = subscription.cancel;
+      });
+    }
     final db = _safeDbRef();
 
     if (db == null) {
@@ -74,6 +103,11 @@ class FirebaseService {
 
   /// Update pump status
   Future<void> updatePump(bool state) async {
+    if (demoMode) {
+      _demoTank = _demoTank.copyWith(pump: state, flow: state ? 12.4 : 0);
+      _demoChanges.add(_demoTank);
+      return;
+    }
     final db = _safeDbRef();
 
     if (db == null) {
@@ -191,6 +225,7 @@ class FirebaseService {
 
   /// Read one-time data snapshot
   Future<TankModel> readTankDataOnce() async {
+    if (demoMode) return _demoTank;
     final db = _safeDbRef();
 
     if (db == null) return _fallbackTank;
