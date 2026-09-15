@@ -282,26 +282,6 @@ class _DashboardPageState extends State<DashboardPage> {
             pump: _tank.pump,
           ),
           const SizedBox(height: 12),
-          if (FirebaseService.demoMode) ...[
-            const SizedBox(height: 16),
-            const Text('DEMO SCENARIOS',
-                style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 1.5,
-                    color: Color(0xFF547084))),
-            const SizedBox(height: 8),
-            Wrap(spacing: 8, runSpacing: 8, children: [
-              for (final scenario
-                  in const {'Low': 18.0, 'Normal': 72.0, 'Full': 98.0}.entries)
-                ChoiceChip(
-                  label: Text('${scenario.key} ${scenario.value.toInt()}%'),
-                  selected: _tank.level == scenario.value,
-                  onSelected: (_) =>
-                      FirebaseService.previewLevel(scenario.value),
-                ),
-            ]),
-          ],
           const SizedBox(height: 8),
           Row(
             children: [

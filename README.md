@@ -60,8 +60,7 @@ flutter test
 
 ## UI demo
 The dashboard starts in demo mode with 72% water, a running pump, 12.4 L/min
-flow, 180 L daily usage, and 5,400 L monthly usage. Use the Low / Normal / Full
-chips to preview tank states and alerts. Pump controls change local sample data;
+flow, 180 L daily usage, and 5,400 L monthly usage. Pump controls change local sample data;
 no pump command is sent to Firebase in demo mode. Values persist while the app
 is running and reset on restart.
 
