@@ -40,7 +40,7 @@ class AuthService {
     yield* _authController.stream;
   }
 
-  /// Register a new user with Firebase Authentication (falls back to demo if Firebase unavailable)
+  /// Register a new user with Firebase Authentication.
   Future<String?> register({required String name, required String email, required String password}) async {
     final normalizedEmail = email.trim().toLowerCase();
 
@@ -61,8 +61,9 @@ class AuthService {
       } on FirebaseAuthException catch (e) {
         debugPrint('Firebase register error: ${e.code} - ${e.message}');
         return _mapAuthError(e);
-      } catch (e) {
+      } catch (e, stackTrace) {
         debugPrint('Register error: $e');
+        debugPrintStack(stackTrace: stackTrace);
         return 'Registration failed. Please try again.';
       }
     }
@@ -70,7 +71,7 @@ class AuthService {
     return 'Authentication is unavailable. Please check your connection.';
   }
 
-  /// Log in an existing user with Firebase Authentication (falls back to demo if Firebase unavailable)
+  /// Log in an existing user with Firebase Authentication.
   Future<String?> login({required String email, required String password}) async {
     final normalizedEmail = email.trim().toLowerCase();
 
@@ -93,8 +94,9 @@ class AuthService {
       } on FirebaseAuthException catch (e) {
         debugPrint('Firebase login error: ${e.code} - ${e.message}');
         return _mapAuthError(e);
-      } catch (e) {
+      } catch (e, stackTrace) {
         debugPrint('Login error: $e');
+        debugPrintStack(stackTrace: stackTrace);
         return 'Login failed. Please try again.';
       }
     }
